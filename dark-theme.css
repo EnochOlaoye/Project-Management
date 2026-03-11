@@ -1,0 +1,17 @@
+/* Dark Mode Colors */
+.root {
+    -fx-background-color: #1E1E1E;
+}
+
+.label {
+    -fx-text-fill: #FFFFFF;
+}
+
+.button {
+    -fx-background-color: #3C3C3C;
+    -fx-text-fill: white;
+}
+
+.content-area {
+    -fx-background-color: #2A2A2A;
+}
