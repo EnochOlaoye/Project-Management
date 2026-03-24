@@ -13,13 +13,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.solutions4u.network.AuthRepository
+import com.example.solutions4u.network.AuthResult
+import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(onBackClick: () -> Unit) {
+fun SignInScreen(
+    onBackClick: () -> Unit,
+    onSignInSuccess: (UserData) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val repository = remember { AuthRepository() }
 
     Scaffold(
         topBar = {
@@ -75,14 +87,48 @@ fun SignInScreen(onBackClick: () -> Unit) {
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    errorMessage?.let {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 13.sp
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { },
+                        onClick = {
+                            scope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                val result = repository.login(email, password)
+                                when (result) {
+                                    is AuthResult.Success -> {
+                                        result.user?.let { onSignInSuccess(it) }
+                                    }
+                                    is AuthResult.Error -> {
+                                        errorMessage = result.message
+                                    }
+                                }
+                                isLoading = false
+                            }
+                        },
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Green600),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Sign In", modifier = Modifier.padding(vertical = 4.dp))
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = White,
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Sign In", modifier = Modifier.padding(vertical = 4.dp))
+                        }
                     }
                 }
             }
@@ -92,10 +138,18 @@ fun SignInScreen(onBackClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(onBackClick: () -> Unit) {
+fun RegisterScreen(
+    onBackClick: () -> Unit,
+    onRegisterSuccess: () -> Unit
+) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val repository = remember { AuthRepository() }
 
     Scaffold(
         topBar = {
@@ -158,14 +212,51 @@ fun RegisterScreen(onBackClick: () -> Unit) {
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    errorMessage?.let {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                    }
+
+                    successMessage?.let {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = it, color = Green600, fontSize = 13.sp)
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { },
+                        onClick = {
+                            scope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                successMessage = null
+                                val result = repository.register(name, email, password)
+                                when (result) {
+                                    is AuthResult.Success -> {
+                                        successMessage = "Account created! You can now sign in."
+                                        onRegisterSuccess()
+                                    }
+                                    is AuthResult.Error -> {
+                                        errorMessage = result.message
+                                    }
+                                }
+                                isLoading = false
+                            }
+                        },
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Red500),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Register", modifier = Modifier.padding(vertical = 4.dp))
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = White,
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Register", modifier = Modifier.padding(vertical = 4.dp))
+                        }
                     }
                 }
             }

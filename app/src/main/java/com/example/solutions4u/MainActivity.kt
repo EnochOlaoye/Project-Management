@@ -55,10 +55,31 @@ fun Solutions4UApp() {
             CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() })
         }
         composable(NavRoutes.SIGN_IN) {
-            SignInScreen(onBackClick = { navController.popBackStack() })
+            SignInScreen(
+             onBackClick = { navController.popBackStack() },
+                onSignInSuccess = { user ->
+                navController.navigate("profile/${user.id}/${user.name}/${user.email}") {
+                    popUpTo(NavRoutes.HOME)
+            }
         }
+    )
+}   
         composable(NavRoutes.REGISTER) {
-            RegisterScreen(onBackClick = { navController.popBackStack() })
+            RegisterScreen(
+            onBackClick = { navController.popBackStack() },
+            onRegisterSuccess = { navController.popBackStack() }
+            )   
         }
+
+        composable("profile/{id}/{name}/{email}") { backStackEntry ->
+            ProfileScreen(
+                userId = backStackEntry.arguments?.getString("id") ?: "",
+                userName = backStackEntry.arguments?.getString("name") ?: "",
+                userEmail = backStackEntry.arguments?.getString("email") ?: "",
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
     }
 }
+
