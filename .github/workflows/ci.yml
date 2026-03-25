@@ -16,6 +16,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
       # Step 1: Grab the code from the repo
       - name: Checkout code
