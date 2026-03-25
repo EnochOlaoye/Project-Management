@@ -1,7 +1,10 @@
 package com.example.solutions4u.network
 
-// Handles the logic of calling the Api
+// This class handles the actual logic of calling the API for login and registration.
+// It wraps the raw API calls and returns a simple Success or Error result
+// so the screens don't have to deal with network details.
 
+// The result of an authentication attempt - either it worked or it didn't
 sealed class AuthResult {
     data class Success(val message: String, val token: String?, val user: UserData?) : AuthResult()
     data class Error(val message: String) : AuthResult()
@@ -10,6 +13,7 @@ sealed class AuthResult {
 class AuthRepository {
     private val api = RetrofitClient.apiService
 
+    // Try to register a new user. Returns Success if it worked, or Error with a message if not.
     suspend fun register(name: String, email: String, password: String): AuthResult {
         return try {
             val response = api.register(RegisterRequest(name, email, password))
@@ -23,6 +27,7 @@ class AuthRepository {
         }
     }
 
+    // Try to log a user in. Returns Success with their details if it worked, or Error if not.
     suspend fun login(email: String, password: String): AuthResult {
         return try {
             val response = api.login(LoginRequest(email, password))

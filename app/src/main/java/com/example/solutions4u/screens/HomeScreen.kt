@@ -24,14 +24,20 @@ import com.example.solutions4u.model.Category
 import com.example.solutions4u.model.NewsItem
 import com.example.solutions4u.model.categories
 import com.example.solutions4u.model.newsItems
+import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
 
+// The main landing page of the app.
+// Shows a top bar with navigation chips, a hero banner, category cards, news, and a footer.
+// If the user is logged in, a profile button replaces the Sign In / Register buttons.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onCategoryClick: (String) -> Unit,
     onSignInClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    loggedInUser: UserData? = null,
+    onProfileClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -40,6 +46,7 @@ fun HomeScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
+                    // Menu icon on the left side of the top bar
                     Icon(
                         Icons.Default.Menu,
                         contentDescription = "Menu",
@@ -48,47 +55,59 @@ fun HomeScreen(
                     )
                 },
                 actions = {
-                    // Navigation chips
+                    // Scrollable row of quick navigation chips and auth buttons
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         contentPadding = PaddingValues(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Category shortcut chips
                         val navItems = listOf("Electricity", "Gas", "Insurance", "Broadband", "Mobile", "News")
                         items(navItems) { item ->
                             AssistChip(
                                 onClick = { onCategoryClick(item.lowercase()) },
                                 label = { Text(item, fontSize = 11.sp, color = White) },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = Green600
-                                ),
+                                colors = AssistChipDefaults.assistChipColors(containerColor = Green600),
                                 border = null
                             )
                         }
-                        item {
-                            OutlinedButton(
-                                onClick = onSignInClick,
-                                modifier = Modifier.height(32.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                            ) {
-                                Text("Sign In", fontSize = 11.sp, color = White)
+
+                        // Show the user's name button if logged in, otherwise show Sign In and Register
+                        if (loggedInUser != null) {
+                            item {
+                                Button(
+                                    onClick = onProfileClick,
+                                    modifier = Modifier.height(32.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                ) {
+                                    Text(loggedInUser.name, fontSize = 11.sp)
+                                }
                             }
-                        }
-                        item {
-                            Button(
-                                onClick = onRegisterClick,
-                                modifier = Modifier.height(32.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Red500),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                            ) {
-                                Text("Register", fontSize = 11.sp)
+                        } else {
+                            item {
+                                OutlinedButton(
+                                    onClick = onSignInClick,
+                                    modifier = Modifier.height(32.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                ) {
+                                    Text("Sign In", fontSize = 11.sp, color = White)
+                                }
+                            }
+                            item {
+                                Button(
+                                    onClick = onRegisterClick,
+                                    modifier = Modifier.height(32.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                ) {
+                                    Text("Register", fontSize = 11.sp)
+                                }
                             }
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Green500
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green500)
             )
         }
     ) { paddingValues ->
@@ -98,21 +117,15 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            // Hero Section
             HeroSection()
-
-            // Category Cards Section
             CategoryCardsSection(onCategoryClick = onCategoryClick)
-
-            // News Section
             NewsSection()
-
-            // Footer
             FooterSection()
         }
     }
 }
 
+// The big banner at the top of the home page with the app name and tagline
 @Composable
 fun HeroSection() {
     Column(
@@ -129,7 +142,10 @@ fun HeroSection() {
             color = White,
             textAlign = TextAlign.Center
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        // Tagline with a subtle border
         Surface(
             shape = RoundedCornerShape(4.dp),
             color = Color.Transparent,
@@ -147,7 +163,7 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Two image placeholder cards
+        // Two placeholder image cards side by side
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,6 +190,7 @@ fun HeroSection() {
                     )
                 }
             }
+
             // Piggy bank card
             Card(
                 modifier = Modifier
@@ -186,16 +203,14 @@ fun HeroSection() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "\uD83D\uDC37",
-                        fontSize = 64.sp
-                    )
+                    Text(text = "\uD83D\uDC37", fontSize = 64.sp)
                 }
             }
         }
     }
 }
 
+// Grid of category cards showing the six utility types the user can compare
 @Composable
 fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
     Column(
@@ -217,7 +232,7 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Category grid - 2 columns x 3 rows
+        // Lay out the categories in rows of 3
         val rows = categories.chunked(3)
         rows.forEach { rowItems ->
             Row(
@@ -233,7 +248,7 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
                         modifier = Modifier.weight(1f)
                     )
                 }
-                // Fill remaining space if row is not complete
+                // Fill any empty space if the row has fewer than 3 items
                 repeat(3 - rowItems.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -242,6 +257,7 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
     }
 }
 
+// A single category card showing the icon, name, and description
 @Composable
 fun CategoryCard(
     category: Category,
@@ -262,7 +278,7 @@ fun CategoryCard(
                 .padding(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            // Icon
+            // Category icon in a small box
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -286,7 +302,6 @@ fun CategoryCard(
                 fontSize = 14.sp,
                 color = Black
             )
-
             Text(
                 text = category.description,
                 fontSize = 10.sp,
@@ -297,6 +312,7 @@ fun CategoryCard(
     }
 }
 
+// The news section on the home page showing the latest articles
 @Composable
 fun NewsSection() {
     Column(
@@ -325,6 +341,7 @@ fun NewsSection() {
     }
 }
 
+// A single news article card with a thumbnail, title, description, and a link button
 @Composable
 fun NewsCard(newsItem: NewsItem) {
     Card(
@@ -339,7 +356,7 @@ fun NewsCard(newsItem: NewsItem) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail placeholder
+            // Thumbnail with a category-specific icon
             Surface(
                 modifier = Modifier
                     .size(64.dp)
@@ -372,7 +389,9 @@ fun NewsCard(newsItem: NewsItem) {
                     fontSize = 12.sp,
                     color = White.copy(alpha = 0.9f)
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Button(
                     onClick = { },
                     colors = ButtonDefaults.buttonColors(containerColor = White),
@@ -390,42 +409,8 @@ fun NewsCard(newsItem: NewsItem) {
     }
 }
 
+// The dark footer at the bottom of the home page with links grouped into three columns
 @Composable
 fun FooterSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(DarkGray)
-            .padding(24.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Use cases column
-            Column {
-                Text("Use cases", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("UI design", "UX design", "Wireframing", "Diagramming", "Brainstorming").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
-                }
-            }
-            // Explore column
-            Column {
-                Text("Explore", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("Design", "Prototyping", "Development features", "Design systems").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
-                }
-            }
-            // Resources column
-            Column {
-                Text("Resources", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("Blog", "Best practices", "Colors", "Color wheel", "Support").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
-                }
-            }
-        }
-    }
+    
 }
