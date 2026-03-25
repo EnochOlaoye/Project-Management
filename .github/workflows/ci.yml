@@ -1,0 +1,40 @@
+# Solutions 4 U - CI Pipeline
+# This file lives at: .github/workflows/ci.yml
+# It runs automatically every time code is pushed or a PR is opened
+
+name: Solutions 4 U CI
+
+# WHEN does the robot wake up?
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [development]
+
+# WHAT does the robot do?
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Grab the code from the repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3: Install all project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Try to build the app (does it compile?)
+      - name: Build the app
+        run: npm run build
+
+      # Step 5: Run the tests (does the old stuff still work?)
+      - name: Run tests
+        run: npm test
