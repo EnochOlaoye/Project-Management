@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
+// Represents a utility category like Electricity or Gas that the user can browse
 data class Category(
     val name: String,
     val description: String,
@@ -16,6 +17,7 @@ data class Category(
     val route: String
 )
 
+// The list of all utility categories available in the app
 val categories = listOf(
     Category(
         name = "Electricity",
@@ -55,12 +57,23 @@ val categories = listOf(
     )
 )
 
+// Represents a single utility bill that the user adds to their profile dashboard
+data class UtilityBill(
+    val id: Int,
+    val category: String,
+    val provider: String,
+    val amount: Double,
+    val date: String
+)
+
+// Represents a news article shown on the home screen
 data class NewsItem(
     val title: String,
     val description: String,
     val category: String
 )
 
+// Sample news items displayed on the home screen
 val newsItems = listOf(
     NewsItem(
         title = "News - Electrical",

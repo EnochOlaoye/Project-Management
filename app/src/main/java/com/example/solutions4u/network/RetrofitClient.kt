@@ -1,10 +1,11 @@
 package com.example.solutions4u.network
 
-// Sets up the connection to the API
-
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+// Sets up the connection to our backend API server.
+// Uses 10.0.2.2 which is how the Android emulator reaches the host machine's localhost.
+// The API service is created once and reused across the whole app.
 object RetrofitClient {
     private const val BASE_URL = "http://10.0.2.2:3000/"
 

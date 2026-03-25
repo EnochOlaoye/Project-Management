@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.ui.theme.*
 
+// Shows details for a single utility category (like Electricity, Gas, etc).
+// Displays the category name and a button to start comparing providers.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
@@ -32,9 +34,7 @@ fun CategoryScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Green600
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
             )
         }
     ) { paddingValues ->
@@ -53,13 +53,17 @@ fun CategoryScreen(
                 fontWeight = FontWeight.Bold,
                 color = White
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "Compare $categoryName providers and find the best deals.",
                 fontSize = 16.sp,
                 color = White.copy(alpha = 0.9f)
             )
+
             Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = { },
                 colors = ButtonDefaults.buttonColors(containerColor = Red500)
