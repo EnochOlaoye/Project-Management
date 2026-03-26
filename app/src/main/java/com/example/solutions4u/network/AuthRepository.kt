@@ -40,4 +40,14 @@ class AuthRepository {
             AuthResult.Error("Could not connect to server. Is it running?")
         }
     }
+
+    // Delete user account from database.
+    suspend fun deleteAccount(userId: String): Boolean {
+        return try {
+            val response = api.deleteAccount(userId)
+            response.error == null
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
