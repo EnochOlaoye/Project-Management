@@ -105,5 +105,9 @@ fun Solutions4UApp() {
                 onBackClick = { navController.popBackStack() }
             )
         }
+
+        composable("settings") {
+            SettingsScreen(onBackClick = { navController.popBackStack() })
+        }
     }
 }
