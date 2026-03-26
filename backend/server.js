@@ -91,6 +91,21 @@ app.post('/login', async (req, res) => {
     });
 });
 
+app.delete('/users/:id', (req, res) => {
+    const { id } = req.params;
+    
+    const query = 'DELETE FROM users WHERE id = ?';
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to delete account' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ message: 'Account deleted successfully' });
+    });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });
 });
