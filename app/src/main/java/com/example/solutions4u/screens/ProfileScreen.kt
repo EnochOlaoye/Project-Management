@@ -33,6 +33,7 @@ fun ProfileScreen(
     userName: String,
     userEmail: String,
     onBackClick: () -> Unit
+    onSettingsClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -66,6 +67,15 @@ fun ProfileScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
+                            tint = White
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
                             tint = White
                         )
                     }
