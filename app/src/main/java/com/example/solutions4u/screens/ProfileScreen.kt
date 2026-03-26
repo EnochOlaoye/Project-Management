@@ -33,7 +33,7 @@ fun ProfileScreen(
     userId: String,
     userName: String,
     userEmail: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()

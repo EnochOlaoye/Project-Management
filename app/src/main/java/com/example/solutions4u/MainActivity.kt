@@ -102,7 +102,7 @@ fun Solutions4UApp() {
                 userId = backStackEntry.arguments?.getString("id") ?: "",
                 userName = backStackEntry.arguments?.getString("name") ?: "",
                 userEmail = backStackEntry.arguments?.getString("email") ?: "",
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
                 onSettingsClick = { navController.navigate("settings") }
             )
         }
