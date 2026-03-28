@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,6 @@ fun HomeScreen(
                     )
                 },
                 actions = {
-                    // Navigation chips
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         contentPadding = PaddingValues(horizontal = 4.dp),
@@ -68,7 +68,9 @@ fun HomeScreen(
                         item {
                             OutlinedButton(
                                 onClick = onSignInClick,
-                                modifier = Modifier.height(32.dp),
+                                modifier = Modifier
+                                    .height(32.dp)
+                                    .testTag("signInButton"),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                             ) {
                                 Text("Sign In", fontSize = 11.sp, color = White)
@@ -77,7 +79,9 @@ fun HomeScreen(
                         item {
                             Button(
                                 onClick = onRegisterClick,
-                                modifier = Modifier.height(32.dp),
+                                modifier = Modifier
+                                    .height(32.dp)
+                                    .testTag("registerButton"),
                                 colors = ButtonDefaults.buttonColors(containerColor = Red500),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                             ) {
@@ -98,16 +102,9 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            // Hero Section
             HeroSection()
-
-            // Category Cards Section
             CategoryCardsSection(onCategoryClick = onCategoryClick)
-
-            // News Section
             NewsSection()
-
-            // Footer
             FooterSection()
         }
     }
@@ -147,14 +144,12 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Two image placeholder cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Dollar sign card
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -174,7 +169,6 @@ fun HeroSection() {
                     )
                 }
             }
-            // Piggy bank card
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -217,7 +211,6 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Category grid - 2 columns x 3 rows
         val rows = categories.chunked(3)
         rows.forEach { rowItems ->
             Row(
@@ -233,7 +226,6 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
                         modifier = Modifier.weight(1f)
                     )
                 }
-                // Fill remaining space if row is not complete
                 repeat(3 - rowItems.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -262,7 +254,6 @@ fun CategoryCard(
                 .padding(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            // Icon
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -339,7 +330,6 @@ fun NewsCard(newsItem: NewsItem) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail placeholder
             Surface(
                 modifier = Modifier
                     .size(64.dp)
@@ -402,7 +392,6 @@ fun FooterSection() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Use cases column
             Column {
                 Text("Use cases", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -410,7 +399,6 @@ fun FooterSection() {
                     Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
                 }
             }
-            // Explore column
             Column {
                 Text("Explore", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -418,7 +406,6 @@ fun FooterSection() {
                     Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
                 }
             }
-            // Resources column
             Column {
                 Text("Resources", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
