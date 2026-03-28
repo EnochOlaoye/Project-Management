@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,7 +47,6 @@ fun HomeScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    // Menu icon on the left side of the top bar
                     Icon(
                         Icons.Default.Menu,
                         contentDescription = "Menu",
@@ -61,7 +61,6 @@ fun HomeScreen(
                         contentPadding = PaddingValues(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Category shortcut chips
                         val navItems = listOf("Electricity", "Gas", "Insurance", "Broadband", "Mobile", "News")
                         items(navItems) { item ->
                             AssistChip(
@@ -88,7 +87,9 @@ fun HomeScreen(
                             item {
                                 OutlinedButton(
                                     onClick = onSignInClick,
-                                    modifier = Modifier.height(32.dp),
+                                    modifier = Modifier
+                                        .height(32.dp)
+                                        .testTag("signInButton"),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                                 ) {
                                     Text("Sign In", fontSize = 11.sp, color = White)
@@ -97,7 +98,9 @@ fun HomeScreen(
                             item {
                                 Button(
                                     onClick = onRegisterClick,
-                                    modifier = Modifier.height(32.dp),
+                                    modifier = Modifier
+                                        .height(32.dp)
+                                        .testTag("registerButton"),
                                     colors = ButtonDefaults.buttonColors(containerColor = Red500),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                                 ) {
@@ -145,7 +148,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Tagline with a subtle border
         Surface(
             shape = RoundedCornerShape(4.dp),
             color = Color.Transparent,
@@ -170,7 +172,6 @@ fun HeroSection() {
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Dollar sign card
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -412,5 +413,37 @@ fun NewsCard(newsItem: NewsItem) {
 // The dark footer at the bottom of the home page with links grouped into three columns
 @Composable
 fun FooterSection() {
-    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(DarkGray)
+            .padding(24.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text("Use cases", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                listOf("UI design", "UX design", "Wireframing", "Diagramming", "Brainstorming").forEach {
+                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+                }
+            }
+            Column {
+                Text("Explore", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                listOf("Design", "Prototyping", "Development features", "Design systems").forEach {
+                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+                }
+            }
+            Column {
+                Text("Resources", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                listOf("Blog", "Best practices", "Colors", "Color wheel", "Support").forEach {
+                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+                }
+            }
+        }
+    }
 }
