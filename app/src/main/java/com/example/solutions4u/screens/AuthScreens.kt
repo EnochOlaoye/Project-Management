@@ -13,23 +13,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.solutions4u.network.AuthRepository
 import com.example.solutions4u.network.AuthResult
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
 import kotlinx.coroutines.launch
 
+// Sign in screen where existing users enter their email and password to log in.
+// On success it passes the user's data back so the app can navigate to their profile.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
     onBackClick: () -> Unit,
     onSignInSuccess: (UserData) -> Unit
 ) {
+    // Form fields and loading state
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
     val scope = rememberCoroutineScope()
     val repository = remember { AuthRepository() }
 
@@ -65,8 +68,10 @@ fun SignInScreen(
                 fontWeight = FontWeight.Bold,
                 color = White
             )
+
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Login form card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -79,7 +84,9 @@ fun SignInScreen(
                         label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -88,6 +95,7 @@ fun SignInScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Show an error message if login failed
                     errorMessage?.let {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -98,13 +106,14 @@ fun SignInScreen(
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
+
+                    // Sign in button - calls the API and handles the result
                     Button(
                         onClick = {
                             scope.launch {
                                 isLoading = true
                                 errorMessage = null
-                                val result = repository.login(email, password)
-                                when (result) {
+                                when (val result = repository.login(email, password)) {
                                     is AuthResult.Success -> {
                                         result.user?.let { onSignInSuccess(it) }
                                     }
@@ -136,18 +145,22 @@ fun SignInScreen(
     }
 }
 
+// Register screen where new users create an account with their name, email, and password.
+// After a successful registration it takes them back so they can sign in.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onBackClick: () -> Unit,
     onRegisterSuccess: () -> Unit
 ) {
+    // Form fields and loading state
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+
     val scope = rememberCoroutineScope()
     val repository = remember { AuthRepository() }
 
@@ -183,8 +196,10 @@ fun RegisterScreen(
                 fontWeight = FontWeight.Bold,
                 color = White
             )
+
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Registration form card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -197,14 +212,18 @@ fun RegisterScreen(
                         label = { Text("Full Name") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -213,25 +232,28 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Show error if registration failed
                     errorMessage?.let {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
                     }
 
+                    // Show success message after account is created
                     successMessage?.let {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = it, color = Green600, fontSize = 13.sp)
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
+
+                    // Register button - calls the API and handles the result
                     Button(
                         onClick = {
                             scope.launch {
                                 isLoading = true
                                 errorMessage = null
                                 successMessage = null
-                                val result = repository.register(name, email, password)
-                                when (result) {
+                                when (val result = repository.register(name, email, password)) {
                                     is AuthResult.Success -> {
                                         successMessage = "Account created! You can now sign in."
                                         onRegisterSuccess()
