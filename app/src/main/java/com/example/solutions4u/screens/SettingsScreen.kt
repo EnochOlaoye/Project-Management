@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Person
 import kotlinx.coroutines.launch
 import com.example.solutions4u.network.AuthRepository
 import com.example.solutions4u.ui.theme.*
@@ -102,6 +103,25 @@ fun SettingsScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
         ) {
+            Box(
+            modifier = Modifier
+            .fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            IconButton(
+            onClick = { /* no function yet */ },
+            modifier = Modifier
+            .size(100.dp) // makes it large
+            .background(Green600, shape = RoundedCornerShape(50))
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person, // choose any icon you like
+                contentDescription = "Profile Icon",
+                tint = White,
+             modifier = Modifier.size(48.dp)
+        )   
+    }
+}
             Button(
                 onClick = { onLogout() },
                 modifier = Modifier
