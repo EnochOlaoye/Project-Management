@@ -98,17 +98,27 @@ fun Solutions4UApp() {
         // Profile screen - shows the user's dashboard and chart.
         // The user id, name, and email are passed through the URL.
         composable("profile/{id}/{name}/{email}") { backStackEntry ->
-            ProfileScreen(
-                userId = backStackEntry.arguments?.getString("id") ?: "",
-                userName = backStackEntry.arguments?.getString("name") ?: "",
-                userEmail = backStackEntry.arguments?.getString("email") ?: "",
-                onBackClick = { navController.popBackStack() },
-                onSettingsClick = { navController.navigate("settings") }
-            )
+        ProfileScreen(
+        userId = backStackEntry.arguments?.getString("id") ?: "",
+        userName = backStackEntry.arguments?.getString("name") ?: "",
+        userEmail = backStackEntry.arguments?.getString("email") ?: "",
+        onBackClick = { navController.popBackStack() },
+        onSettingsClick = {
+            navController.navigate("settings/${backStackEntry.arguments?.getString("id")}")
         }
+    )
+}
 
-        composable("settings") {
-            SettingsScreen(onBackClick = { navController.popBackStack() })
+        composable("settings/{userId}") { backStackEntry ->
+    SettingsScreen(
+        userId = backStackEntry.arguments?.getString("userId") ?: "",
+        onBackClick = { navController.popBackStack() },
+        onAccountDeleted = {
+            navController.navigate(NavRoutes.HOME) {
+                popUpTo(NavRoutes.HOME) { inclusive = true }
+            }
         }
+    )
+}
     }
 }
