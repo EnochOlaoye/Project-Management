@@ -110,11 +110,12 @@ fun Solutions4UApp() {
 }
 
         composable("settings/{userId}") { backStackEntry ->
-    SettingsScreen(
-        userId = backStackEntry.arguments?.getString("userId") ?: "",
-        onBackClick = { navController.popBackStack() },
-        onAccountDeleted = {
-            navController.navigate(NavRoutes.HOME) {
+            SettingsScreen(
+            userId = backStackEntry.arguments?.getString("userId") ?: "",
+            onBackClick = { navController.popBackStack() },
+            onAccountDeleted = {
+                loggedInUser = null
+                navController.navigate(NavRoutes.HOME) {
                 popUpTo(NavRoutes.HOME) { inclusive = true }
             }
         }
