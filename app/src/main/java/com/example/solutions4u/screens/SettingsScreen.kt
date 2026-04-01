@@ -124,6 +124,83 @@ fun SettingsScreen(
         )   
     }
 }
+        Column(
+            modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Property Name Temp",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = White
+         )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+             Button(
+        onClick = { /* no function yet */ },
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = Green600),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            "Change Details",
+            color = White,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+     Spacer(modifier = Modifier.height(12.dp))
+
+ Button(
+        onClick = { /* no function yet */ },
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = Green600),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            "Change Login Info",
+            color = White,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+Spacer(modifier = Modifier.height(12.dp))
+
+ Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+Button(
+            onClick = { /* no function yet */ },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                "Add",
+                color = White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Button(
+            onClick = { /* no function yet */ },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(containerColor = Red500),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                "Delete",
+                color = White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
             Column(
                 modifier = Modifier
                 .fillMaxWidth()
