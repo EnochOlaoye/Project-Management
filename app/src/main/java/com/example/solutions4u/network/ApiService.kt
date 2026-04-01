@@ -4,6 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.DELETE
 import retrofit2.http.Path
+import retrofit2.Response
 
 // The data we send to the server when someone registers a new account
 data class RegisterRequest(
@@ -40,11 +41,11 @@ interface ApiService {
 
     // Send a register request and get back a response
     @POST("register")
-    suspend fun register(@Body request: RegisterRequest): AuthResponse
+    suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
 
     // Send a login request and get back a response with the user's details
     @POST("login")
-    suspend fun login(@Body request: LoginRequest): AuthResponse
+    suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
     @DELETE("users/{id}")
     suspend fun deleteAccount(@Path("id") userId: String): AuthResponse
