@@ -22,7 +22,8 @@ import com.example.solutions4u.ui.theme.*
 fun SettingsScreen(
     userId: String,
     onBackClick: () -> Unit,
-    onAccountDeleted: () -> Unit
+    onAccountDeleted: () -> Unit,
+    onLogout: () -> Unit
 ) {
     var showConfirmDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -96,20 +97,30 @@ fun SettingsScreen(
                 .background(Green500)
                 .padding(24.dp)
         ) {
-            errorMessage?.let {
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+        ) {
+            Button(
+                onClick = { onLogout() },
+                modifier = Modifier
+                .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text(
-                    text = it,
+                    "Logout",
                     color = White,
-                    fontSize = 14.sp,
-                    modifier = Modifier.align(Alignment.Center)
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
-
+            
             OutlinedButton(
                 onClick = { showConfirmDialog = true },
                 enabled = !isLoading,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .border(1.dp, Red500, RoundedCornerShape(8.dp)),
                 shape = RoundedCornerShape(8.dp),
@@ -131,5 +142,6 @@ fun SettingsScreen(
                 }
             }
         }
+    }
     }
 }

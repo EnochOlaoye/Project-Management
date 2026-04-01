@@ -118,7 +118,13 @@ fun Solutions4UApp() {
                 navController.navigate(NavRoutes.HOME) {
                 popUpTo(NavRoutes.HOME) { inclusive = true }
             }
-        }
+        },
+            onLogout = {
+                loggedInUser = null
+                navController.navigate(NavRoutes.HOME) {
+                    popUpTo(NavRoutes.HOME) { inclusive = true }
+                }
+            }
     )
 }
     }
