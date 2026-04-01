@@ -100,12 +100,14 @@ fun SettingsScreen(
         ) {
         Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
+                .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
             modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(top = 32.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             IconButton(
@@ -122,6 +124,11 @@ fun SettingsScreen(
         )   
     }
 }
+            Column(
+                modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
             Button(
                 onClick = { onLogout() },
                 modifier = Modifier
@@ -162,6 +169,7 @@ fun SettingsScreen(
                 }
             }
         }
+    }
     }
     }
 }
