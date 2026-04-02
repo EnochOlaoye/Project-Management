@@ -4,8 +4,6 @@ package com.example.solutions4u.network
 // It wraps the raw API calls and returns a simple Success or Error result
 // so the screens don't have to deal with network details.
 
-import org.json.JSONObject
-
 // The result of an authentication attempt - either it worked or it didn't
 sealed class AuthResult {
     data class Success(val message: String, val token: String?, val user: UserData?) : AuthResult()
@@ -19,12 +17,10 @@ class AuthRepository {
     suspend fun register(name: String, email: String, password: String): AuthResult {
         return try {
             val response = api.register(RegisterRequest(name, email, password))
-            if (response.isSuccessful) {
-                val body = response.body()
-                AuthResult.Success(body?.message ?: "Registration successful", null, null)
+            if (response.error != null) {
+                AuthResult.Error(response.error)
             } else {
-                val errorMessage = extractError(response.errorBody()?.string())
-                AuthResult.Error(errorMessage)
+                AuthResult.Success(response.message, null, null)
             }
         } catch (e: Exception) {
             AuthResult.Error("Could not connect to server. Is it running?")
@@ -35,37 +31,13 @@ class AuthRepository {
     suspend fun login(email: String, password: String): AuthResult {
         return try {
             val response = api.login(LoginRequest(email, password))
-            if (response.isSuccessful) {
-                val body = response.body()
-                AuthResult.Success(
-                    body?.message ?: "Login successful",
-                    body?.token,
-                    body?.user
-                )
+            if (response.error != null) {
+                AuthResult.Error(response.error)
             } else {
-                val errorMessage = extractError(response.errorBody()?.string())
-                AuthResult.Error(errorMessage)
+                AuthResult.Success(response.message, response.token, response.user)
             }
         } catch (e: Exception) {
             AuthResult.Error("Could not connect to server. Is it running?")
-        }
-    }
-
-    // Delete user account from database.
-    suspend fun deleteAccount(userId: String): Boolean {
-        return try {
-            val response = api.deleteAccount(userId)
-            response.error == null
-        } catch (e: Exception) {
-            false
-        }
-    }
-    // Helper function to extract "error" from backend JSON
-    private fun extractError(errorBody: String?): String {
-        return try {
-            JSONObject(errorBody ?: "").getString("error")
-        } catch (e: Exception) {
-            "Something went wrong"
         }
     }
 }
