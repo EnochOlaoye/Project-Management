@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +21,6 @@ import com.example.solutions4u.screens.parseHexColor
 import com.example.solutions4u.ui.theme.ThemeManager
 
 
-// The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,22 +40,32 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// The root composable that sets up all the navigation for the app.
-// It keeps track of whether a user is logged in and passes that info to the screens that need it.
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Solutions4UApp() {
+fun Solutions4UApp(
+    isDarkTheme: Boolean = false,
+    onThemeToggle: () -> Unit = {}
+) {
     val navController = rememberNavController()
-
-    // This keeps track of the logged-in user across all screens.
-    // When null, the user is not logged in.
     var loggedInUser by remember { mutableStateOf<UserData?>(null) }
 
-    NavHost(navController = navController, startDestination = NavRoutes.HOME) {
+    val categories = listOf("Electricity", "Gas", "Car Insurance", "Broadband", "Mobile", "News")
 
-        // Home screen - the main landing page with categories, news, and login buttons
+    NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
-                onCategoryClick = { route -> navController.navigate(route) },
+                onCategoryClick = { route ->
+                    val index = when (route) {
+                        "electricity" -> 0
+                        "gas" -> 1
+                        "insurance" -> 2
+                        "broadband" -> 3
+                        "mobile" -> 4
+                        "news" -> 5
+                        else -> 0
+                    }
+                    navController.navigate("categories/$index")
+                },
                 onSignInClick = { navController.navigate(NavRoutes.SIGN_IN) },
                 onRegisterClick = { navController.navigate(NavRoutes.REGISTER) },
                 loggedInUser = loggedInUser,
@@ -62,31 +74,33 @@ fun Solutions4UApp() {
                     if (user != null) {
                         navController.navigate("profile/${user.id}/${user.name}/${user.email}")
                     }
+                },
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle,
+                onDashboardClick = {
+                    navController.navigate("profile/1/Guest/guest@email.com")
+                },
+                onLogoutClick = {
+                    loggedInUser = null
                 }
             )
         }
 
-        // Each utility category gets its own screen
-        composable(NavRoutes.ELECTRICITY) {
-            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() })
-        }
-        composable(NavRoutes.GAS) {
-            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() })
-        }
-        composable(NavRoutes.INSURANCE) {
-            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() })
-        }
-        composable(NavRoutes.BROADBAND) {
-            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() })
-        }
-        composable(NavRoutes.MOBILE) {
-            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() })
-        }
-        composable(NavRoutes.NEWS) {
-            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() })
+        // Swipeable category pages
+        composable("categories/{startIndex}") { backStackEntry ->
+            val startIndex = backStackEntry.arguments?.getString("startIndex")?.toIntOrNull() ?: 0
+            val pagerState = rememberPagerState(initialPage = startIndex) { categories.size }
+
+            HorizontalPager(
+                state = pagerState
+            ) { page ->
+                CategoryScreen(
+                    categoryName = categories[page],
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
         }
 
-        // Sign in screen - on success, save the user and go to their profile
         composable(NavRoutes.SIGN_IN) {
             SignInScreen(
                 onBackClick = { navController.popBackStack() },
@@ -98,17 +112,12 @@ fun Solutions4UApp() {
                 }
             )
         }
-
-        // Register screen - after registering, go back so the user can sign in
         composable(NavRoutes.REGISTER) {
             RegisterScreen(
                 onBackClick = { navController.popBackStack() },
                 onRegisterSuccess = { navController.popBackStack() }
             )
         }
-
-        // Profile screen - shows the user's dashboard and chart.
-        // The user id, name, and email are passed through the URL.
         composable("profile/{id}/{name}/{email}") { backStackEntry ->
         ProfileScreen(
         userId = backStackEntry.arguments?.getString("id") ?: "",

@@ -3,13 +3,19 @@ package com.example.solutions4u.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Settings
+=======
+import androidx.compose.material.icons.filled.Refresh
+>>>>>>> development
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,17 +24,19 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
+<<<<<<< HEAD
 import com.example.solutions4u.ui.theme.darken
+=======
+import kotlinx.coroutines.launch
+>>>>>>> development
 
-// The user's profile screen focused on two things:
-// 1. A bar chart showing spending broken down by category
-// 2. The ability to add new utility bills via a floating + button
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ProfileScreen(
     userId: String,
@@ -37,28 +45,27 @@ fun ProfileScreen(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val defaultBills = listOf(
+        UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
+        UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
+        UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
+        UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
+        UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
+    )
 
-    // The user's utility bills - starts with some sample data
-    var bills by remember {
-        mutableStateOf(
-            listOf(
-                UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-03-01"),
-                UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-05"),
-                UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10")
-            )
-        )
-    }
-    var nextId by remember { mutableIntStateOf(4) }
-
-    // Controls for the "add a bill" dialog
+    var bills by remember { mutableStateOf(defaultBills) }
+    var nextId by remember { mutableIntStateOf(6) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
 
-    // The categories the user can pick from when adding a new bill
+    val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
     val billCategories = listOf("Electricity", "Gas", "Broadband", "Mobile", "Car Insurance")
+
+    val pagerState = rememberPagerState(initialPage = 2) { periods.size }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -74,6 +81,7 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
+<<<<<<< HEAD
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             Icons.Default.Settings,
@@ -83,10 +91,19 @@ fun ProfileScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
+=======
+                    IconButton(
+                        onClick = { showResetDialog = true },
+                        modifier = Modifier.testTag("resetButton")
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Reset Bills", tint = White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+>>>>>>> development
             )
         },
         floatingActionButton = {
-            // Floating button to open the "add a new bill" dialog
             FloatingActionButton(
                 onClick = { showAddDialog = true },
                 containerColor = Red500,
@@ -100,11 +117,14 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+<<<<<<< HEAD
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
+=======
+                .background(Green500)
+>>>>>>> development
                 .padding(16.dp)
         ) {
-            // Dashboard heading
             Text(
                 text = "Dashboard",
                 fontSize = 22.sp,
@@ -114,38 +134,151 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bar chart showing how much the user spends in each category
-            if (bills.isNotEmpty()) {
-                BillsBarChart(bills = bills)
-            } else {
-                // Show a helpful message when there are no bills yet
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = White)
+            // Swipeable tabs
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("periodTabs"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = White)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    periods.forEachIndexed { index, period ->
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (pagerState.currentPage == index) Green600 else Color.Transparent,
+                                contentColor = if (pagerState.currentPage == index) White else DarkGray
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(0.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier
+                                .height(36.dp)
+                                .testTag("tab_$period")
+                        ) {
+                            Text(text = period, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Total card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = White)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "No bills added yet. Tap + to add your first utility bill.",
-                        modifier = Modifier.padding(24.dp),
-                        color = DarkGray,
-                        fontSize = 14.sp
+                        text = "${periods[pagerState.currentPage]} Total",
+                        fontSize = 14.sp,
+                        color = DarkGray
+                    )
+                    val currentBills = when (periods[pagerState.currentPage]) {
+                        "Daily" -> bills.filter { it.date == "2026-04-02" }
+                        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
+                        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
+                        "Yearly" -> bills.filter { it.date.startsWith("2026") }
+                        else -> bills
+                    }
+                    Text(
+                        text = "€${"%.2f".format(currentBills.sumOf { it.amount })}",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Green600
                     )
                 }
             }
 
-            // Extra space at the bottom so content doesn't hide behind the floating button
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Swipeable pager content
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .testTag("expenditurePager")
+            ) { page ->
+                val pageBills = when (periods[page]) {
+                    "Daily" -> bills.filter { it.date == "2026-04-02" }
+                    "Weekly" -> bills.filter { it.date >= "2026-03-26" }
+                    "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
+                    "Yearly" -> bills.filter { it.date.startsWith("2026") }
+                    else -> bills
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    if (pageBills.isNotEmpty()) {
+                        BillsBarChart(bills = pageBills)
+                    } else {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = White)
+                        ) {
+                            Text(
+                                text = "No bills found for this period. Tap + to add a bill.",
+                                modifier = Modifier.padding(24.dp),
+                                color = DarkGray,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(80.dp))
+                }
+            }
         }
     }
 
-    // Dialog that pops up when the user taps the + button to add a new bill
+    // Reset dialog
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Reset Bills") },
+            text = { Text("This will clear all your bills and restore the sample data. Are you sure?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        bills = defaultBills
+                        nextId = 6
+                        showResetDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Red500)
+                ) {
+                    Text("Reset", color = White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Add bill dialog
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             title = { Text("Add Utility Bill") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    // Dropdown to pick the bill category
                     var expanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
                         expanded = expanded,
@@ -174,8 +307,6 @@ fun ProfileScreen(
                             }
                         }
                     }
-
-                    // Text fields for the provider name and bill amount
                     OutlinedTextField(
                         value = providerText,
                         onValueChange = { providerText = it },
@@ -191,7 +322,6 @@ fun ProfileScreen(
                 }
             },
             confirmButton = {
-                // Only add the bill if the provider is filled in and the amount is a valid number
                 Button(
                     onClick = {
                         val amount = amountText.toDoubleOrNull()
@@ -201,7 +331,7 @@ fun ProfileScreen(
                                 category = selectedCategory,
                                 provider = providerText,
                                 amount = amount,
-                                date = "2026-03-25"
+                                date = "2026-04-02"
                             )
                             nextId++
                             providerText = ""
@@ -224,11 +354,8 @@ fun ProfileScreen(
     }
 }
 
-// A horizontal bar chart that shows spending broken down by category.
-// Each category gets a coloured bar sized relative to the highest spending category.
 @Composable
 fun BillsBarChart(bills: List<UtilityBill>) {
-    // Add up the total amount for each category and sort highest first
     val categoryTotals = bills
         .groupBy { it.category }
         .mapValues { (_, items) -> items.sumOf { it.amount } }
@@ -237,13 +364,12 @@ fun BillsBarChart(bills: List<UtilityBill>) {
 
     val maxAmount = categoryTotals.maxOfOrNull { it.second } ?: 0.0
 
-    // Each category gets a different colour bar
     val barColors = listOf(
-        Color(0xFF16A34A),  // Green
-        Color(0xFFEF4444),  // Red
-        Color(0xFF3B82F6),  // Blue
-        Color(0xFFF59E0B),  // Amber
-        Color(0xFF8B5CF6)   // Purple
+        Color(0xFF16A34A),
+        Color(0xFFEF4444),
+        Color(0xFF3B82F6),
+        Color(0xFFF59E0B),
+        Color(0xFF8B5CF6)
     )
 
     Card(
@@ -258,15 +384,10 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                 fontWeight = FontWeight.Bold,
                 color = Black
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             categoryTotals.forEachIndexed { index, (category, amount) ->
-                // Work out how wide this bar should be compared to the biggest one
                 val fraction = if (maxAmount > 0) (amount / maxAmount).toFloat() else 0f
                 val barColor = barColors[index % barColors.size]
-
-                // Show the category name on the left and the amount on the right
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -279,22 +400,13 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         color = Black
                     )
                 }
-
                 Spacer(modifier = Modifier.height(4.dp))
-
-                // Draw the bar using Canvas - a grey background track with a coloured fill
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(20.dp)
-                ) {
-                    // Grey background track
+                Canvas(modifier = Modifier.fillMaxWidth().height(20.dp)) {
                     drawRoundRect(
                         color = Color(0xFFF5F5F5),
                         size = Size(size.width, size.height),
                         cornerRadius = CornerRadius(8f, 8f)
                     )
-                    // Coloured fill showing the spending amount
                     if (fraction > 0f) {
                         drawRoundRect(
                             color = barColor,
@@ -304,8 +416,6 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         )
                     }
                 }
-
-                // Add spacing between bars, but not after the last one
                 if (index < categoryTotals.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }
