@@ -8,8 +8,18 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_prefs")
+
+ fun Color.darken(factor: Float = 0.15f): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(this.toArgb(), hsl)
+    hsl[2] = (hsl[2] - factor).coerceAtLeast(0f)
+    return Color(ColorUtils.HSLToColor(hsl))
+}
 
 object ThemeManager {
     private val BACKGROUND_COLOR_KEY = stringPreferencesKey("background_color")

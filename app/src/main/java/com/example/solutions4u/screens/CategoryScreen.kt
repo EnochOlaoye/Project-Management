@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
 
 // Shows details for a single utility category (like Electricity, Gas, etc).
 // Displays the category name and a button to start comparing providers.
@@ -34,7 +35,7 @@ fun CategoryScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->

@@ -26,6 +26,7 @@ import com.example.solutions4u.model.categories
 import com.example.solutions4u.model.newsItems
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
 
 // The main landing page of the app.
 // Shows a top bar with navigation chips, a hero banner, category cards, news, and a footer.
@@ -40,6 +41,8 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
+    val bgColor = MaterialTheme.colorScheme.background
+    val topBarColor = bgColor.darken()
 
     Scaffold(
         topBar = {
@@ -67,7 +70,7 @@ fun HomeScreen(
                             AssistChip(
                                 onClick = { onCategoryClick(item.lowercase()) },
                                 label = { Text(item, fontSize = 11.sp, color = White) },
-                                colors = AssistChipDefaults.assistChipColors(containerColor = Green600),
+                                colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.background),
                                 border = null
                             )
                         }
@@ -78,7 +81,7 @@ fun HomeScreen(
                                 Button(
                                     onClick = onProfileClick,
                                     modifier = Modifier.height(32.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                                 ) {
                                     Text(loggedInUser.name, fontSize = 11.sp)
@@ -107,7 +110,7 @@ fun HomeScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green500)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = topBarColor)
             )
         }
     ) { paddingValues ->
@@ -117,9 +120,9 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            HeroSection()
-            CategoryCardsSection(onCategoryClick = onCategoryClick)
-            NewsSection()
+            HeroSection(bgColor = bgColor)
+            CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = topBarColor)
+            NewsSection(bgColor = topBarColor)
             FooterSection()
         }
     }
@@ -127,11 +130,11 @@ fun HomeScreen(
 
 // The big banner at the top of the home page with the app name and tagline
 @Composable
-fun HeroSection() {
+fun HeroSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
+            .background(bgColor)
             .padding(vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -212,11 +215,11 @@ fun HeroSection() {
 
 // Grid of category cards showing the six utility types the user can compare
 @Composable
-fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
+fun CategoryCardsSection(onCategoryClick: (String) -> Unit, bgColor : Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Green500)
+            .background(bgColor)
             .padding(16.dp)
     ) {
         Text(
@@ -314,11 +317,11 @@ fun CategoryCard(
 
 // The news section on the home page showing the latest articles
 @Composable
-fun NewsSection() {
+fun NewsSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Green500)
+            .background(bgColor)
             .padding(16.dp)
     ) {
         Text(

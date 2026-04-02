@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
 
 // The user's profile screen focused on two things:
 // 1. A bar chart showing spending broken down by category
@@ -81,7 +82,7 @@ fun ProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
             )
         },
         floatingActionButton = {

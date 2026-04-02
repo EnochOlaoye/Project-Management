@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import kotlinx.coroutines.launch
 import com.example.solutions4u.network.AuthRepository
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +36,8 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val repository = remember { AuthRepository() }
     val context = LocalContext.current
+    val bgColor = MaterialTheme.colorScheme.background
+    val topBarColor = bgColor.darken()
     
     // Collect saved colour from DataStore
     val savedColorHex by ThemeManager.getBackgroundColor(context)
@@ -115,7 +118,7 @@ fun SettingsScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = topBarColor)
             )
         }
     ) { paddingValues ->
@@ -123,7 +126,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
+                .background(bgColor)
                 .padding(24.dp)
         ) {
         Column(
@@ -144,7 +147,7 @@ fun SettingsScreen(
             onClick = { /* no function yet */ },
             modifier = Modifier
             .size(100.dp) // makes it large
-            .background(Green600, shape = RoundedCornerShape(50))
+            .background(topBarColor, shape = RoundedCornerShape(50))
         ) {
             Icon(
                 imageVector = Icons.Default.Person, // choose any icon you like
@@ -174,7 +177,7 @@ fun SettingsScreen(
              Button(
         onClick = { /* no function yet */ },
         modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = Green600),
+        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
@@ -189,7 +192,7 @@ fun SettingsScreen(
  Button(
         onClick = { /* no function yet */ },
         modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = Green600),
+        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
@@ -206,7 +209,7 @@ Spacer(modifier = Modifier.height(12.dp))
 Button(
     onClick = { showThemeDialog = true },
     modifier = Modifier.fillMaxWidth(),
-    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+    colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
     shape = RoundedCornerShape(8.dp)
 ) {
     Text(
@@ -225,7 +228,7 @@ Spacer(modifier = Modifier.height(12.dp))
 Button(
             onClick = { /* no function yet */ },
             modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+            colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(
@@ -260,7 +263,7 @@ Button(
                 onClick = { onLogout() },
                 modifier = Modifier
                 .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
@@ -271,14 +274,13 @@ Button(
                 )
             }
             
-            OutlinedButton(
+            Button(
                 onClick = { showConfirmDialog = true },
                 enabled = !isLoading,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Red500, RoundedCornerShape(8.dp)),
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Red500)
+                colors = ButtonDefaults.buttonColors(containerColor = Red500),
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -289,7 +291,7 @@ Button(
                 } else {
                     Text(
                         "Delete Account",
-                        color = Red500,
+                        color = White,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
