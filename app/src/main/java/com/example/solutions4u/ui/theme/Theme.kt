@@ -36,12 +36,43 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = White
 )
 
+private val DarkColorScheme = darkColorScheme(
+    primary = Color(0xFF1B5E20),
+    onPrimary = White,
+    primaryContainer = Color(0xFF1B5E20),
+    onPrimaryContainer = White,
+    secondary = Red500,
+    onSecondary = White,
+    background = Color(0xFF1B5E20),
+    onBackground = White,
+    surface = Color(0xFF121212),
+    onSurface = White,
+    surfaceVariant = Color(0xFF2C2C2C),
+    onSurfaceVariant = White
+)
+
 @Composable
 fun Solutions4UTheme(
-    darkTheme: Boolean = false,
+    backgroundColor: Color = Green500,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = lightColorScheme(
+        primary = Green600,
+        onPrimary = White,
+        primaryContainer = backgroundColor,
+        onPrimaryContainer = White,
+        secondary = Red500,
+        onSecondary = White,
+        secondaryContainer = Red600,
+        onSecondaryContainer = White,
+        background = backgroundColor,
+        onBackground = White,
+        surface = backgroundColor,
+        onSurface = White,
+        surfaceVariant = LightGray,
+        onSurfaceVariant = DarkGray
+    )
+
 
     MaterialTheme(
         colorScheme = colorScheme,

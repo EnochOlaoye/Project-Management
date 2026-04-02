@@ -18,6 +18,7 @@ import com.example.solutions4u.network.AuthResult
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
 import kotlinx.coroutines.launch
+import com.example.solutions4u.ui.theme.darken
 
 // Sign in screen where existing users enter their email and password to log in.
 // On success it passes the user's data back so the app can navigate to their profile.
@@ -49,7 +50,7 @@ fun SignInScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->
@@ -57,7 +58,7 @@ fun SignInScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Green500)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -82,7 +83,10 @@ fun SignInScreen(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Email") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                         colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Black,
+                         unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +96,10 @@ fun SignInScreen(
                         onValueChange = { password = it },
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Black,
+                         unfocusedTextColor = Black)
                     )
 
                     // Show an error message if login failed
@@ -177,7 +184,7 @@ fun RegisterScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor =  MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->
@@ -185,7 +192,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Green500)
+                .background( MaterialTheme.colorScheme.background)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -210,7 +217,10 @@ fun RegisterScreen(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text("Full Name") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Black,
+                         unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -219,7 +229,10 @@ fun RegisterScreen(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Email") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Black,
+                         unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -229,7 +242,10 @@ fun RegisterScreen(
                         onValueChange = { password = it },
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Black,
+                         unfocusedTextColor = Black)
                     )
 
                     // Show error if registration failed
