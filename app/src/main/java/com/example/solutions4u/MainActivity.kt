@@ -51,7 +51,10 @@ fun Solutions4UApp(
                     }
                 },
                 isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
+                onThemeToggle = onThemeToggle,
+                onDashboardClick = {
+                    navController.navigate("profile/1/Guest/guest@email.com")
+                }
             )
         }
         composable(NavRoutes.ELECTRICITY) {

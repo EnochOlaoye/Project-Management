@@ -37,7 +37,8 @@ fun HomeScreen(
     loggedInUser: UserData? = null,
     onProfileClick: () -> Unit = {},
     isDarkTheme: Boolean = false,
-    onThemeToggle: () -> Unit = {}
+    onThemeToggle: () -> Unit = {},
+    onDashboardClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -142,6 +143,17 @@ fun HomeScreen(
             CategoryCardsSection(onCategoryClick = onCategoryClick)
             NewsSection()
             FooterSection()
+
+            // Dashboard button to view expenditure without logging in
+            Button(
+                onClick = onDashboardClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Green600)
+            ) {
+                Text("View Dashboard", color = White, fontSize = 16.sp)
+            }
         }
     }
 }
