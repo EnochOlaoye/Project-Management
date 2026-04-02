@@ -8,10 +8,15 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.example.solutions4u.navigation.NavRoutes
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.screens.*
 import com.example.solutions4u.ui.theme.Solutions4UTheme
+import com.example.solutions4u.screens.parseHexColor
+import com.example.solutions4u.ui.theme.ThemeManager
+
 
 // The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
@@ -19,7 +24,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Solutions4UTheme {
+             // Read the saved colour from DataStore — updates live when user changes it
+            val savedColorHex by ThemeManager.getBackgroundColor(this)
+                .collectAsState(initial = ThemeManager.DEFAULT_COLOR)
+ 
+            val backgroundColor = remember(savedColorHex) {
+                parseHexColor(savedColorHex) ?: Color(0xFF2E7D32)
+            }
+            Solutions4UTheme(backgroundColor = backgroundColor) {
                 Solutions4UApp()
             }
         }

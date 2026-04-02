@@ -131,7 +131,7 @@ fun HeroSection() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Green500)
+            .background(MaterialTheme.colorScheme.background)
             .padding(vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

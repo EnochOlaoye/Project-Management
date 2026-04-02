@@ -10,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -27,11 +29,36 @@ fun SettingsScreen(
     onLogout: () -> Unit
 ) {
     var showConfirmDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val repository = remember { AuthRepository() }
+    val context = LocalContext.current
+    
+    // Collect saved colour from DataStore
+    val savedColorHex by ThemeManager.getBackgroundColor(context)
+        .collectAsState(initial = ThemeManager.DEFAULT_COLOR)
+ 
+    val backgroundColor = remember(savedColorHex) {
+        parseHexColor(savedColorHex) ?: Color(0xFF2E7D32)
+    }
 
+    // Theme Dialog
+    if (showThemeDialog) {
+        ThemeColorDialog(
+            currentHex = savedColorHex,
+            onDismiss = { showThemeDialog = false },
+            onSave = { hex ->
+                scope.launch {
+                    ThemeManager.saveBackgroundColor(context, hex)
+                }
+                showThemeDialog = false
+            }
+        )
+    }
+    
+    // Delete account dialog
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
@@ -74,6 +101,7 @@ fun SettingsScreen(
         )
     }
 
+    // Main layout
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,7 +123,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Green500)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp)
         ) {
         Column(
@@ -104,6 +132,8 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // Profile icon
             Box(
             modifier = Modifier
             .fillMaxWidth()
@@ -124,6 +154,8 @@ fun SettingsScreen(
         )   
     }
 }
+
+    // Buttons in middle of screen
         Column(
             modifier = Modifier
             .fillMaxWidth()
@@ -169,6 +201,23 @@ fun SettingsScreen(
 
 Spacer(modifier = Modifier.height(12.dp))
 
+// Theme button
+
+Button(
+    onClick = { showThemeDialog = true },
+    modifier = Modifier.fillMaxWidth(),
+    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+    shape = RoundedCornerShape(8.dp)
+) {
+    Text(
+        "Theme",
+        color = White,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+Spacer(modifier = Modifier.height(12.dp))
+
  Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -201,6 +250,7 @@ Button(
     }
 }
 
+        // Bottom Buttons
             Column(
                 modifier = Modifier
                 .fillMaxWidth()

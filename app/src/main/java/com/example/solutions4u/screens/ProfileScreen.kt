@@ -99,7 +99,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Green500)
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
