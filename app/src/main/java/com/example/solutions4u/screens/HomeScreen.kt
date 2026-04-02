@@ -27,6 +27,7 @@ import com.example.solutions4u.model.categories
 import com.example.solutions4u.model.newsItems
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +39,12 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     isDarkTheme: Boolean = false,
     onThemeToggle: () -> Unit = {},
-    onDashboardClick: () -> Unit = {}
+    onDashboardClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
+    val bgColor = MaterialTheme.colorScheme.background
+    val topBarColor = bgColor.darken()
 
     Scaffold(
         topBar = {
@@ -65,7 +69,7 @@ fun HomeScreen(
                             AssistChip(
                                 onClick = { onCategoryClick(item.lowercase()) },
                                 label = { Text(item, fontSize = 11.sp, color = White) },
-                                colors = AssistChipDefaults.assistChipColors(containerColor = Green600),
+                                colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.background),
                                 border = null
                             )
                         }
@@ -74,10 +78,22 @@ fun HomeScreen(
                                 Button(
                                     onClick = onProfileClick,
                                     modifier = Modifier.height(32.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                                 ) {
                                     Text(loggedInUser.name, fontSize = 11.sp)
+                                }
+                            }
+                            item {
+                                Button(
+                                    onClick = onLogoutClick,
+                                    modifier = Modifier
+                                        .height(32.dp)
+                                        .testTag("logoutButton"),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                ) {
+                                    Text("Logout", fontSize = 11.sp)
                                 }
                             }
                         } else {
@@ -107,7 +123,7 @@ fun HomeScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green500)
+                colors = TopAppBarDefaults.topAppBarColors( containerColor = topBarColor)
             )
         }
     ) { paddingValues ->
@@ -117,6 +133,9 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
+            HeroSection(bgColor = bgColor)
+            CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = topBarColor)
+            NewsSection(bgColor = topBarColor)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,6 +161,7 @@ fun HomeScreen(
             HeroSection()
             CategoryCardsSection(onCategoryClick = onCategoryClick)
             NewsSection()
+
             FooterSection()
 
             // Dashboard button to view expenditure without logging in
@@ -159,11 +179,14 @@ fun HomeScreen(
 }
 
 @Composable
-fun HeroSection() {
+fun HeroSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(bgColor)
+
             .background(MaterialTheme.colorScheme.background)
+
             .padding(vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -219,11 +242,14 @@ fun HeroSection() {
 }
 
 @Composable
-fun CategoryCardsSection(onCategoryClick: (String) -> Unit) {
+fun CategoryCardsSection(onCategoryClick: (String) -> Unit, bgColor : Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(bgColor)
+
             .background(MaterialTheme.colorScheme.background)
+
             .padding(16.dp)
     ) {
         Text(text = "Start saving now", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = White)
@@ -292,11 +318,14 @@ fun CategoryCard(
 }
 
 @Composable
-fun NewsSection() {
+fun NewsSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(bgColor)
+
             .background(MaterialTheme.colorScheme.background)
+
             .padding(16.dp)
     ) {
         Text(text = "News", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = White)
