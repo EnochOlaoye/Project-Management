@@ -1,0 +1,7 @@
+For the mobile application we all came to the conclusion from Seán DevOps role/review to go with the following architecture:
+Front End - Java
+Back End - Java / Kotlin
+Databse - SQL
+IDE - VS Code
+The reason for picking the above is that they're fimilar to us. However, due to the project we do feel the above will challenge
+us to provide and produce the best possible outcome for the application.

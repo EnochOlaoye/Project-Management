@@ -3,15 +3,13 @@ package com.example.solutions4u.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,37 +24,47 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     userId: String,
     userName: String,
     userEmail: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
-    val defaultBills = listOf(
-        UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
-        UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
-        UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
-        UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
-        UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
-    )
+    val scrollState = rememberScrollState()
 
-    var bills by remember { mutableStateOf(defaultBills) }
+    var bills by remember {
+        mutableStateOf(
+            listOf(
+                UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
+                UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
+                UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
+                UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
+                UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
+            )
+        )
+    }
     var nextId by remember { mutableIntStateOf(6) }
     var showAddDialog by remember { mutableStateOf(false) }
-    var showResetDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
 
+    var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
+
     val billCategories = listOf("Electricity", "Gas", "Broadband", "Mobile", "Car Insurance")
 
-    val pagerState = rememberPagerState(initialPage = 2) { periods.size }
-    val coroutineScope = rememberCoroutineScope()
+    val filteredBills = when (selectedPeriod) {
+        "Daily" -> bills.filter { it.date == "2026-04-02" }
+        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
+        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
+        "Yearly" -> bills.filter { it.date.startsWith("2026") }
+        else -> bills
+    }
 
     Scaffold(
         topBar = {
@@ -72,11 +80,12 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = { showResetDialog = true },
-                        modifier = Modifier.testTag("resetButton")
-                    ) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Reset Bills", tint = White)
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = White
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
@@ -97,6 +106,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Green500)
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             Text(
@@ -108,7 +118,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Swipeable tabs
+            // Time period tabs
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,16 +132,12 @@ fun ProfileScreen(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    periods.forEachIndexed { index, period ->
+                    periods.forEach { period ->
                         Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
+                            onClick = { selectedPeriod = period },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (pagerState.currentPage == index) Green600 else Color.Transparent,
-                                contentColor = if (pagerState.currentPage == index) White else DarkGray
+                                containerColor = if (selectedPeriod == period) Green600 else Color.Transparent,
+                                contentColor = if (selectedPeriod == period) White else DarkGray
                             ),
                             elevation = ButtonDefaults.buttonElevation(0.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
@@ -147,7 +153,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Total card
+            // Total for selected period
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -155,19 +161,12 @@ fun ProfileScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "${periods[pagerState.currentPage]} Total",
+                        text = "$selectedPeriod Total",
                         fontSize = 14.sp,
                         color = DarkGray
                     )
-                    val currentBills = when (periods[pagerState.currentPage]) {
-                        "Daily" -> bills.filter { it.date == "2026-04-02" }
-                        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                        "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                        else -> bills
-                    }
                     Text(
-                        text = "€${"%.2f".format(currentBills.sumOf { it.amount })}",
+                        text = "€${"%.2f".format(filteredBills.sumOf { it.amount })}",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Green600
@@ -177,76 +176,27 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Swipeable pager content
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .testTag("expenditurePager")
-            ) { page ->
-                val pageBills = when (periods[page]) {
-                    "Daily" -> bills.filter { it.date == "2026-04-02" }
-                    "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                    "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                    "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                    else -> bills
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+            if (filteredBills.isNotEmpty()) {
+                BillsBarChart(bills = filteredBills)
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
                 ) {
-                    if (pageBills.isNotEmpty()) {
-                        BillsBarChart(bills = pageBills)
-                    } else {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = White)
-                        ) {
-                            Text(
-                                text = "No bills found for this period. Tap + to add a bill.",
-                                modifier = Modifier.padding(24.dp),
-                                color = DarkGray,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(80.dp))
+                    Text(
+                        text = "No bills found for this period. Tap + to add a bill.",
+                        modifier = Modifier.padding(24.dp),
+                        color = DarkGray,
+                        fontSize = 14.sp
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 
-    // Reset dialog
-    if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Bills") },
-            text = { Text("This will clear all your bills and restore the sample data. Are you sure?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        bills = defaultBills
-                        nextId = 6
-                        showResetDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Red500)
-                ) {
-                    Text("Reset", color = White)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
-    // Add bill dialog
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
@@ -358,10 +308,13 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                 fontWeight = FontWeight.Bold,
                 color = Black
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             categoryTotals.forEachIndexed { index, (category, amount) ->
                 val fraction = if (maxAmount > 0) (amount / maxAmount).toFloat() else 0f
                 val barColor = barColors[index % barColors.size]
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -374,8 +327,14 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         color = Black
                     )
                 }
+
                 Spacer(modifier = Modifier.height(4.dp))
-                Canvas(modifier = Modifier.fillMaxWidth().height(20.dp)) {
+
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                ) {
                     drawRoundRect(
                         color = Color(0xFFF5F5F5),
                         size = Size(size.width, size.height),
@@ -390,6 +349,7 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         )
                     }
                 }
+
                 if (index < categoryTotals.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }

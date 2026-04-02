@@ -38,8 +38,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     isDarkTheme: Boolean = false,
     onThemeToggle: () -> Unit = {},
-    onDashboardClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {}
+    onDashboardClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -79,18 +78,6 @@ fun HomeScreen(
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                                 ) {
                                     Text(loggedInUser.name, fontSize = 11.sp)
-                                }
-                            }
-                            item {
-                                Button(
-                                    onClick = onLogoutClick,
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .testTag("logoutButton"),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Text("Logout", fontSize = 11.sp)
                                 }
                             }
                         } else {
@@ -157,6 +144,7 @@ fun HomeScreen(
             NewsSection()
             FooterSection()
 
+            // Dashboard button to view expenditure without logging in
             Button(
                 onClick = onDashboardClick,
                 modifier = Modifier
