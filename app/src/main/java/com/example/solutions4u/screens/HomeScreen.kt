@@ -133,11 +133,9 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-<<<<<<< HEAD
             HeroSection(bgColor = bgColor)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = topBarColor)
             NewsSection(bgColor = topBarColor)
-=======
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -163,9 +161,10 @@ fun HomeScreen(
             HeroSection()
             CategoryCardsSection(onCategoryClick = onCategoryClick)
             NewsSection()
->>>>>>> development
+
             FooterSection()
 
+            // Dashboard button to view expenditure without logging in
             Button(
                 onClick = onDashboardClick,
                 modifier = Modifier
@@ -184,11 +183,10 @@ fun HeroSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-<<<<<<< HEAD
             .background(bgColor)
-=======
+
             .background(MaterialTheme.colorScheme.background)
->>>>>>> development
+
             .padding(vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -248,11 +246,10 @@ fun CategoryCardsSection(onCategoryClick: (String) -> Unit, bgColor : Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-<<<<<<< HEAD
             .background(bgColor)
-=======
+
             .background(MaterialTheme.colorScheme.background)
->>>>>>> development
+
             .padding(16.dp)
     ) {
         Text(text = "Start saving now", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = White)
@@ -325,11 +322,10 @@ fun NewsSection(bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-<<<<<<< HEAD
             .background(bgColor)
-=======
+
             .background(MaterialTheme.colorScheme.background)
->>>>>>> development
+
             .padding(16.dp)
     ) {
         Text(text = "News", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = White)

@@ -11,11 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Settings
-=======
 import androidx.compose.material.icons.filled.Refresh
->>>>>>> development
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,11 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
-<<<<<<< HEAD
 import com.example.solutions4u.ui.theme.darken
-=======
 import kotlinx.coroutines.launch
->>>>>>> development
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -45,15 +39,19 @@ fun ProfileScreen(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val defaultBills = listOf(
-        UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
-        UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
-        UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
-        UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
-        UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
-    )
+    val scrollState = rememberScrollState()
 
-    var bills by remember { mutableStateOf(defaultBills) }
+    var bills by remember {
+        mutableStateOf(
+            listOf(
+                UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
+                UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
+                UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
+                UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
+                UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
+            )
+        )
+    }
     var nextId by remember { mutableIntStateOf(6) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
@@ -61,11 +59,18 @@ fun ProfileScreen(
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
 
+    var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
+
     val billCategories = listOf("Electricity", "Gas", "Broadband", "Mobile", "Car Insurance")
 
-    val pagerState = rememberPagerState(initialPage = 2) { periods.size }
-    val coroutineScope = rememberCoroutineScope()
+    val filteredBills = when (selectedPeriod) {
+        "Daily" -> bills.filter { it.date == "2026-04-02" }
+        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
+        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
+        "Yearly" -> bills.filter { it.date.startsWith("2026") }
+        else -> bills
+    }
 
     Scaffold(
         topBar = {
@@ -81,7 +86,6 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
-<<<<<<< HEAD
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             Icons.Default.Settings,
@@ -91,7 +95,6 @@ fun ProfileScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
-=======
                     IconButton(
                         onClick = { showResetDialog = true },
                         modifier = Modifier.testTag("resetButton")
@@ -99,8 +102,7 @@ fun ProfileScreen(
                         Icon(Icons.Default.Refresh, contentDescription = "Reset Bills", tint = White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
->>>>>>> development
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         },
         floatingActionButton = {
@@ -117,12 +119,8 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-<<<<<<< HEAD
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
-=======
-                .background(Green500)
->>>>>>> development
                 .padding(16.dp)
         ) {
             Text(
@@ -135,6 +133,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Swipeable tabs
+            // Time period tabs
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,6 +146,58 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    periods.forEach { period ->
+                        Button(
+                            onClick = { selectedPeriod = period },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedPeriod == period) Green600 else Color.Transparent,
+                                contentColor = if (selectedPeriod == period) White else DarkGray
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(0.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier
+                                .height(36.dp)
+                                .testTag("tab_$period")
+                        ) {
+                            Text(text = period, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Total for selected period
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = White)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "$selectedPeriod Total",
+                        fontSize = 14.sp,
+                        color = DarkGray
+                    )
+                    Text(
+                        text = "€${"%.2f".format(filteredBills.sumOf { it.amount })}",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Green600
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (filteredBills.isNotEmpty()) {
+                BillsBarChart(bills = filteredBills)
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
                 ) {
                     periods.forEachIndexed { index, period ->
                         Button(
@@ -273,6 +324,18 @@ fun ProfileScreen(
     }
 
     // Add bill dialog
+                        text = "No bills found for this period. Tap + to add a bill.",
+                        modifier = Modifier.padding(24.dp),
+                        color = DarkGray,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+    }
+
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
