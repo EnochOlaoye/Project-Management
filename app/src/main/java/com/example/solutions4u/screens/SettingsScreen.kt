@@ -25,6 +25,7 @@ import com.example.solutions4u.network.PropertyRepository
 import com.example.solutions4u.network.PropertyResult
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
+import com.example.solutions4u.network.AuthResult
 
 // Add Property Dialog 
 @Composable
@@ -118,7 +119,100 @@ private fun AddPropertyDialog(
         }
     )
 }
- 
+
+// Edit property dialog
+@Composable
+private fun EditPropertyDialog(
+    property: Property,
+    onDismiss: () -> Unit,
+    onSave: (name: String, addressLine1: String, addressLine2: String, eircode: String) -> Unit
+) {
+    var name         by remember { mutableStateOf(property.name) }
+    var addressLine1 by remember { mutableStateOf(property.addressLine1) }
+    var addressLine2 by remember { mutableStateOf(property.addressLine2) }
+    var eircode      by remember { mutableStateOf(property.eircode) }
+    var saveAttempted by remember { mutableStateOf(false) }
+
+    val nameError    = saveAttempted && name.isBlank()
+    val addr1Error   = saveAttempted && addressLine1.isBlank()
+    val eircodeError = saveAttempted && eircode.isBlank()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Property", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value         = name,
+                    onValueChange = { name = it },
+                    label         = { Text("Property Name") },
+                    isError       = nameError,
+                    supportingText = if (nameError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = addressLine1,
+                    onValueChange = { addressLine1 = it },
+                    label         = { Text("Address Line 1") },
+                    isError       = addr1Error,
+                    supportingText = if (addr1Error) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = addressLine2,
+                    onValueChange = { addressLine2 = it },
+                    label         = { Text("Address Line 2 (optional)") },
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = eircode,
+                    onValueChange = { eircode = it },
+                    label         = { Text("Eircode") },
+                    isError       = eircodeError,
+                    supportingText = if (eircodeError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    saveAttempted = true
+                    if (name.isNotBlank() && addressLine1.isNotBlank() && eircode.isNotBlank()) {
+                        onSave(name.trim(), addressLine1.trim(), addressLine2.trim(), eircode.trim())
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Save", color = White, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
 // Property List Dialog (switch or delete) 
 @Composable
 private fun PropertyListDialog(
@@ -188,11 +282,114 @@ private fun DeleteConfirmDialog(
     )
 }
 
+@Composable
+private fun EditLoginInfoDialog(
+    currentName: String,
+    currentEmail: String,
+    onDismiss: () -> Unit,
+    onSave: (name: String, email: String, password: String?) -> Unit
+) {
+    var name          by remember { mutableStateOf(currentName) }
+    var email         by remember { mutableStateOf(currentEmail) }
+    var password      by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var saveAttempted by remember { mutableStateOf(false) }
+
+    val nameError     = saveAttempted && name.isBlank()
+    val emailError    = saveAttempted && email.isBlank()
+    val passwordMismatch = saveAttempted && password != confirmPassword
+    val passwordTooShort = saveAttempted && password.isNotBlank() && password.length < 6
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Login Info", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value         = name,
+                    onValueChange = { name = it },
+                    label         = { Text("Full Name") },
+                    isError       = nameError,
+                    supportingText = if (nameError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = email,
+                    onValueChange = { email = it },
+                    label         = { Text("Email") },
+                    isError       = emailError,
+                    supportingText = if (emailError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = password,
+                    onValueChange = { password = it },
+                    label         = { Text("New Password (leave blank to keep current)") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    isError       = passwordMismatch || passwordTooShort,
+                    supportingText = when {
+                        passwordTooShort -> {{ Text("Password must be at least 6 characters", color = Red500) }}
+                        passwordMismatch -> {{ Text("Passwords do not match", color = Red500) }}
+                        else -> null
+                    },
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label         = { Text("Confirm New Password") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    isError       = passwordMismatch,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    saveAttempted = true
+                    val passwordValid = password.isBlank() || (password == confirmPassword && password.length >= 6)
+                    if (name.isNotBlank() && email.isNotBlank() && passwordValid) {
+                        onSave(name.trim(), email.trim(), password.ifBlank { null })
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Save", color = White, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     userId: String,
+    userName: String,
+    userEmail: String,
     onBackClick: () -> Unit,
     onAccountDeleted: () -> Unit,
     onLogout: () -> Unit
@@ -208,8 +405,10 @@ fun SettingsScreen(
     val topBarColor = bgColor.darken()
 
     var showAddProperty    by remember { mutableStateOf(false) }
+    var showEditProperty by remember { mutableStateOf(false) }
     var showSwitchProperty by remember { mutableStateOf(false) }
     var showDeleteList     by remember { mutableStateOf(false) }
+    var showEditLoginInfo by remember { mutableStateOf(false) }
     var propertyToDelete   by remember { mutableStateOf<Property?>(null) }
     var properties     by remember { mutableStateOf<List<Property>>(emptyList()) }
     var activeProperty by remember { mutableStateOf<Property?>(null) }
@@ -286,7 +485,61 @@ fun SettingsScreen(
             }
         )
     }
- 
+
+// Edit active property
+if (showEditProperty && activeProperty != null) {
+    EditPropertyDialog(
+        property  = activeProperty!!,
+        onDismiss = { showEditProperty = false },
+        onSave    = { name, addressLine1, addressLine2, eircode ->
+            showEditProperty = false
+            scope.launch {
+                isLoading = true
+                errorMessage = null
+                when (val result = propertyRepository.updateProperty(
+                    activeProperty!!.id, name, addressLine1, addressLine2, eircode
+                )) {
+                    is PropertyResult.Success -> {
+                        val updated = activeProperty!!.copy(
+                            name = name,
+                            addressLine1 = addressLine1,
+                            addressLine2 = addressLine2,
+                            eircode = eircode
+                        )
+                        properties = properties.map {
+                            if (it.id == updated.id) updated else it
+                        }
+                        activeProperty = updated
+                    }
+                    is PropertyResult.Error -> errorMessage = result.message
+                }
+                isLoading = false
+            }
+        }
+    )
+}
+
+// Edit login info
+if (showEditLoginInfo) {
+    EditLoginInfoDialog(
+        currentName  = userName,
+        currentEmail = userEmail,
+        onDismiss    = { showEditLoginInfo = false },
+        onSave       = { name: String, email: String, password: String? ->
+            showEditLoginInfo = false
+            scope.launch {
+                isLoading = true
+                errorMessage = null
+                when (val result = repository.updateUser(userId, name, email, password)) {
+                    is AuthResult.Success -> { /* updated successfully */ }
+                    is AuthResult.Error   -> errorMessage = result.message
+                }
+                isLoading = false
+            }
+        }
+    )
+}
+
     // Switch property (icon button)
     if (showSwitchProperty) {
         PropertyListDialog(
@@ -455,7 +708,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
              Button(
-        onClick = { /* no function yet */ },
+        onClick = { showEditProperty = true },
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
         shape = RoundedCornerShape(8.dp)
@@ -470,7 +723,7 @@ fun SettingsScreen(
      Spacer(modifier = Modifier.height(12.dp))
 
  Button(
-        onClick = { /* no function yet */ },
+        onClick = { showEditLoginInfo = true },
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
         shape = RoundedCornerShape(8.dp)
@@ -530,6 +783,56 @@ Button(
                 fontWeight = FontWeight.Bold
             )
         }
+    }
+}
+
+        // Bottom Buttons
+            Column(
+                modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Button(
+                onClick = { onLogout() },
+                modifier = Modifier
+                .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    "Logout",
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+            
+            Button(
+                onClick = { showConfirmDialog = true },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Red500),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Red500,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        "Delete Account",
+                        color = White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+    }
     }
 }
 

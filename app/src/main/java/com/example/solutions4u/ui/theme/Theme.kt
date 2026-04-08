@@ -1,40 +1,13 @@
 package com.example.solutions4u.ui.theme
 
+import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-
-private val LightColorScheme = lightColorScheme(
-    primary = Green600,
-    onPrimary = White,
-    primaryContainer = Green500,
-    onPrimaryContainer = White,
-    secondary = Red500,
-    onSecondary = White,
-    background = Green500,
-    onBackground = White,
-    surface = White,
-    onSurface = Black,
-    surfaceVariant = LightGray,
-    onSurfaceVariant = DarkGray
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF1B5E20),
-    onPrimary = White,
-    primaryContainer = Color(0xFF1B5E20),
-    onPrimaryContainer = White,
-    secondary = Red500,
-    onSecondary = White,
-    background = Color(0xFF1B5E20),
-    onBackground = White,
-    surface = Color(0xFF121212),
-    onSurface = White,
-    surfaceVariant = Color(0xFF2C2C2C),
-    onSurfaceVariant = White
-)
+import androidx.compose.ui.platform.LocalContext
+import com.example.solutions4u.screens.parseHexColor
+import kotlinx.coroutines.flow.map
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF1B5E20),
@@ -53,26 +26,32 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun Solutions4UTheme(
-    backgroundColor: Color = Green500,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+
+    // Read the saved colour from DataStore reactively
+    val savedColorHex by ThemeManager.getBackgroundColor(context)
+        .collectAsState(initial = ThemeManager.DEFAULT_COLOR)
+
+    val bgColor = parseHexColor(savedColorHex) ?: Color(0xFF2E7D32)
+
     val colorScheme = lightColorScheme(
-        primary = Green600,
+        primary = bgColor,
         onPrimary = White,
-        primaryContainer = backgroundColor,
+        primaryContainer = bgColor,
         onPrimaryContainer = White,
         secondary = Red500,
         onSecondary = White,
-        secondaryContainer = Red600,
+        secondaryContainer = Red500,
         onSecondaryContainer = White,
-        background = backgroundColor,
+        background = bgColor,
         onBackground = White,
-        surface = backgroundColor,
-        onSurface = White,
+        surface = White,
+        onSurface = Black,
         surfaceVariant = LightGray,
         onSurfaceVariant = DarkGray
     )
-
 
     MaterialTheme(
         colorScheme = colorScheme,

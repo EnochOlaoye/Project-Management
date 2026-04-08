@@ -1,5 +1,7 @@
 package com.example.solutions4u.network
 
+import org.json.JSONObject
+
 // This class handles the actual logic of calling the API for login and registration.
 // It wraps the raw API calls and returns a simple Success or Error result
 // so the screens don't have to deal with network details.
@@ -55,11 +57,34 @@ class AuthRepository {
     suspend fun deleteAccount(userId: String): Boolean {
         return try {
             val response = api.deleteAccount(userId)
-            response.error == null
+            android.util.Log.d("DELETE_ACCOUNT", "Response code: ${response.code()}")
+        android.util.Log.d("DELETE_ACCOUNT", "Response successful: ${response.isSuccessful}")
+        android.util.Log.d("DELETE_ACCOUNT", "Error body: ${response.errorBody()?.string()}")
+            response.isSuccessful
         } catch (e: Exception) {
+            android.util.Log.e("DELETE_ACCOUNT", "Exception: ${e.message}")
             false
         }
     }
+
+    suspend fun updateUser(userId: String, name: String, email: String, password: String?): AuthResult {
+    return try {
+        android.util.Log.d("UPDATE_USER", "userId: $userId, name: $name, email: $email, password: ${if (password != null) "provided" else "null"}")
+        val response = api.updateUser(userId, UpdateUserRequest(name, email, password))
+        android.util.Log.d("UPDATE_USER", "Response code: ${response.code()}")
+        android.util.Log.d("UPDATE_USER", "Error body: ${response.errorBody()?.string()}")
+        if (response.isSuccessful) {
+            val body = response.body()
+            AuthResult.Success(body?.message ?: "Account updated", null, body?.user)
+        } else {
+            val errorMessage = extractError(response.errorBody()?.string())
+            AuthResult.Error(errorMessage)
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("UPDATE_USER", "Exception: ${e.message}")
+        AuthResult.Error("Could not connect to server. Is it running?")
+    }
+}
     // Helper function to extract "error" from backend JSON
     private fun extractError(errorBody: String?): String {
         return try {

@@ -35,7 +35,7 @@ fun CategoryScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->

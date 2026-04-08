@@ -50,7 +50,7 @@ fun SignInScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->
@@ -84,9 +84,9 @@ fun SignInScreen(
                         onValueChange = { email = it },
                         label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth(),
-                         colors = OutlinedTextFieldDefaults.colors(
+                        colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Black,
-                         unfocusedTextColor = Black)
+                        unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -99,7 +99,7 @@ fun SignInScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Black,
-                         unfocusedTextColor = Black)
+                        unfocusedTextColor = Black)
                     )
 
                     // Show an error message if login failed
@@ -184,7 +184,7 @@ fun RegisterScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor =  MaterialTheme.colorScheme.background.darken())
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         }
     ) { paddingValues ->
@@ -192,7 +192,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background( MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -220,7 +220,7 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Black,
-                         unfocusedTextColor = Black)
+                        unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -232,7 +232,7 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Black,
-                         unfocusedTextColor = Black)
+                        unfocusedTextColor = Black)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -245,7 +245,7 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Black,
-                         unfocusedTextColor = Black)
+                        unfocusedTextColor = Black)
                     )
 
                     // Show error if registration failed

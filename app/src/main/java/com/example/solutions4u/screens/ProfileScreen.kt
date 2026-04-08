@@ -41,6 +41,7 @@ fun ProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
+// The user's utility bills - starts with some sample data
     var bills by remember {
         mutableStateOf(
             listOf(
@@ -53,6 +54,8 @@ fun ProfileScreen(
         )
     }
     var nextId by remember { mutableIntStateOf(6) }
+
+    // Controls for the "add a bill" dialog
     var showAddDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
@@ -62,6 +65,7 @@ fun ProfileScreen(
     var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
 
+    // The categories the user can pick from when adding a new bill
     val billCategories = listOf("Electricity", "Gas", "Broadband", "Mobile", "Car Insurance")
 
     val filteredBills = when (selectedPeriod) {
@@ -94,18 +98,11 @@ fun ProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors( containerColor = MaterialTheme.colorScheme.background.darken())
-                    IconButton(
-                        onClick = { showResetDialog = true },
-                        modifier = Modifier.testTag("resetButton")
-                    ) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Reset Bills", tint = White)
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         },
         floatingActionButton = {
+            // Floating button to open the "add a new bill" dialog
             FloatingActionButton(
                 onClick = { showAddDialog = true },
                 containerColor = Red500,
@@ -123,6 +120,7 @@ fun ProfileScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
+            // Dashboard heading
             Text(
                 text = "Dashboard",
                 fontSize = 22.sp,
@@ -194,6 +192,7 @@ fun ProfileScreen(
             if (filteredBills.isNotEmpty()) {
                 BillsBarChart(bills = filteredBills)
             } else {
+                // Show a helpful message when there are no bills yet
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),

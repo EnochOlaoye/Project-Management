@@ -68,6 +68,28 @@ class PropertyRepository {
         }
     }
 
+    suspend fun updateProperty(
+    propertyId: Int,
+    name: String,
+    addressLine1: String,
+    addressLine2: String,
+    eircode: String
+): PropertyResult {
+    return try {
+        val response = api.updateProperty(
+            propertyId,
+            PropertyRequest(0, name, addressLine1, addressLine2, eircode)
+        )
+        if (response.isSuccessful) {
+            PropertyResult.Success(property = response.body()?.property)
+        } else {
+            PropertyResult.Error(extractError(response.errorBody()?.string()))
+        }
+    } catch (e: Exception) {
+        PropertyResult.Error("Could not connect to server. Is it running?")
+    }
+}
+
     // Helper function to extract "error" from backend JSON
     private fun extractError(errorBody: String?): String {
         return try {
