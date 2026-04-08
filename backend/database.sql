@@ -8,3 +8,13 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS properties (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    user_id       INT          NOT NULL,
+    name          VARCHAR(100) NOT NULL,
+    address_line1 VARCHAR(150) NOT NULL,
+    address_line2 VARCHAR(150) DEFAULT '',
+    eircode       VARCHAR(10)  NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
