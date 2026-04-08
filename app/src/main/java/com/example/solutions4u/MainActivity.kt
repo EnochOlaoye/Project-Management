@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,30 +15,43 @@ import com.example.solutions4u.navigation.NavRoutes
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.screens.*
 import com.example.solutions4u.ui.theme.Solutions4UTheme
+import com.example.solutions4u.screens.parseHexColor
+import com.example.solutions4u.ui.theme.ThemeManager
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
+// The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var isDarkTheme by remember { mutableStateOf(false) }
-            Solutions4UTheme(darkTheme = isDarkTheme) {
-                Solutions4UApp(
-                    isDarkTheme = isDarkTheme,
-                    onThemeToggle = { isDarkTheme = !isDarkTheme }
-                )
+            
+            Solutions4UTheme {
+                Solutions4UApp()
             }
         }
     }
 }
 
 @Composable
-fun Solutions4UApp(
-    isDarkTheme: Boolean = false,
-    onThemeToggle: () -> Unit = {}
-) {
+fun Solutions4UApp() {
     val navController = rememberNavController()
+
+    // This keeps track of the logged-in user across all screens.
+    // When null, the user is not logged in.
     var loggedInUser by remember { mutableStateOf<UserData?>(null) }
+
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    // Helper to reset theme and log out
+    val logoutAndReset: () -> Unit = {
+        scope.launch {
+            ThemeManager.saveBackgroundColor(context, ThemeManager.DEFAULT_COLOR)
+        }
+        loggedInUser = null
+    }
 
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
@@ -50,10 +66,14 @@ fun Solutions4UApp(
                         navController.navigate("profile/${user.id}/${user.name}/${user.email}")
                     }
                 },
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle,
                 onDashboardClick = {
                     navController.navigate("profile/1/Guest/guest@email.com")
+                },
+                onLogoutClick = {
+                    logoutAndReset()
+                    navController.navigate(NavRoutes.HOME) {
+                    popUpTo(NavRoutes.HOME) { inclusive = true }
+                }
                 }
             )
         }
@@ -86,24 +106,44 @@ fun Solutions4UApp(
                 }
             )
         }
+
+        // Register screen - after registering, go back so the user can sign in
         composable(NavRoutes.REGISTER) {
             RegisterScreen(
                 onBackClick = { navController.popBackStack() },
                 onRegisterSuccess = { navController.popBackStack() }
             )
         }
+
+        // Profile screen - shows the user's dashboard and chart.
+        // The user id, name, and email are passed through the URL.
         composable("profile/{id}/{name}/{email}") { backStackEntry ->
             ProfileScreen(
                 userId = backStackEntry.arguments?.getString("id") ?: "",
                 userName = backStackEntry.arguments?.getString("name") ?: "",
                 userEmail = backStackEntry.arguments?.getString("email") ?: "",
                 onBackClick = { navController.popBackStack() },
-                onSettingsClick = { navController.navigate("settings") }
+                onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") }
             )
         }
 
-        composable("settings") {
-            SettingsScreen(onBackClick = { navController.popBackStack() })
+        composable("settings/{userId}") { backStackEntry ->
+            SettingsScreen(
+                userId = backStackEntry.arguments?.getString("userId") ?: "",
+                onBackClick = { navController.popBackStack() },
+                onAccountDeleted = {
+                    logoutAndReset()
+                    navController.navigate(NavRoutes.HOME) {
+                    popUpTo(NavRoutes.HOME) { inclusive = true }
+                        }
+                },
+                onLogout = {
+                    logoutAndReset()
+                    navController.navigate(NavRoutes.HOME) {
+                      popUpTo(NavRoutes.HOME) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
