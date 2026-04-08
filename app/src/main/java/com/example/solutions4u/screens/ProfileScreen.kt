@@ -3,6 +3,8 @@ package com.example.solutions4u.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,8 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
+import com.example.solutions4u.ui.theme.darken
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ProfileScreen(
     userId: String,
@@ -36,6 +41,7 @@ fun ProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
+// The user's utility bills - starts with some sample data
     var bills by remember {
         mutableStateOf(
             listOf(
@@ -48,6 +54,8 @@ fun ProfileScreen(
         )
     }
     var nextId by remember { mutableIntStateOf(6) }
+
+    // Controls for the "add a bill" dialog
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
@@ -56,6 +64,7 @@ fun ProfileScreen(
     var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
 
+    // The categories the user can pick from when adding a new bill
     val billCategories = listOf("Electricity", "Gas", "Broadband", "Mobile", "Car Insurance")
 
     val filteredBills = when (selectedPeriod) {
@@ -88,10 +97,11 @@ fun ProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Green600)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
             )
         },
         floatingActionButton = {
+            // Floating button to open the "add a new bill" dialog
             FloatingActionButton(
                 onClick = { showAddDialog = true },
                 containerColor = Red500,
@@ -105,10 +115,11 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Green500)
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
+            // Dashboard heading
             Text(
                 text = "Dashboard",
                 fontSize = 22.sp,
@@ -179,6 +190,7 @@ fun ProfileScreen(
             if (filteredBills.isNotEmpty()) {
                 BillsBarChart(bills = filteredBills)
             } else {
+                // Show a helpful message when there are no bills yet
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),

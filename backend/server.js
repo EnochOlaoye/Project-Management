@@ -91,6 +91,162 @@ app.post('/login', async (req, res) => {
     });
 });
 
+app.delete('/users/:id', (req, res) => {
+    const { id } = req.params;
+    
+    const query = 'DELETE FROM users WHERE id = ?';
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to delete account' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ message: 'Account deleted successfully' });
+    });
+});
+
+// Get all properties for a user
+app.get('/users/:userId/properties', (req, res) => {
+    const { userId } = req.params;
+ 
+    const query = 'SELECT * FROM properties WHERE user_id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch properties' });
+        }
+        // Map snake_case DB columns to camelCase for the Android app
+        const properties = results.map(row => ({
+            id:           row.id,
+            userId:       row.user_id,
+            name:         row.name,
+            addressLine1: row.address_line1,
+            addressLine2: row.address_line2 || '',
+            eircode:      row.eircode
+        }));
+        res.json({ properties });
+    });
+});
+ 
+// Add a new property
+app.post('/properties', (req, res) => {
+    const { userId, name, addressLine1, addressLine2, eircode } = req.body;
+ 
+    if (!userId || !name || !addressLine1 || !eircode) {
+        return res.status(400).json({ error: 'userId, name, addressLine1 and eircode are required' });
+    }
+ 
+    const query = `
+        INSERT INTO properties (user_id, name, address_line1, address_line2, eircode)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+    db.query(query, [userId, name, addressLine1, addressLine2 || '', eircode], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to save property' });
+        }
+        // Return the full property object including the new DB-generated id
+        res.status(201).json({
+            message: 'Property saved successfully',
+            property: {
+                id:           result.insertId,
+                userId:       userId,
+                name:         name,
+                addressLine1: addressLine1,
+                addressLine2: addressLine2 || '',
+                eircode:      eircode
+            }
+        });
+    });
+});
+ 
+// Delete a property
+app.delete('/properties/:propertyId', (req, res) => {
+    const { propertyId } = req.params;
+ 
+    const query = 'DELETE FROM properties WHERE id = ?';
+    db.query(query, [propertyId], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to delete property' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        res.json({ message: 'Property deleted successfully' });
+    });
+});
+
+// Update a property
+app.put('/properties/:propertyId', (req, res) => {
+    const { propertyId } = req.params;
+    const { name, addressLine1, addressLine2, eircode } = req.body;
+
+    if (!name || !addressLine1 || !eircode) {
+        return res.status(400).json({ error: 'name, addressLine1 and eircode are required' });
+    }
+
+    const query = `
+        UPDATE properties
+        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?
+        WHERE id = ?
+    `;
+    db.query(query, [name, addressLine1, addressLine2 || '', eircode, propertyId], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to update property' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        res.json({
+            message: 'Property updated successfully',
+            property: {
+                id:           parseInt(propertyId),
+                name:         name,
+                addressLine1: addressLine1,
+                addressLine2: addressLine2 || '',
+                eircode:      eircode
+            }
+        });
+    });
+});
+
+// Update user account details
+app.put('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    try {
+        // If a new password was provided, hash it. Otherwise keep existing.
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            db.query(
+                'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?',
+                [name, email, hashedPassword, id],
+                (err, result) => {
+                    if (err) return res.status(500).json({ error: 'Failed to update account' });
+                    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+                    res.json({ message: 'Account updated successfully', user: { id: parseInt(id), name, email } });
+                }
+            );
+        } else {
+            db.query(
+                'UPDATE users SET name = ?, email = ? WHERE id = ?',
+                [name, email, id],
+                (err, result) => {
+                    if (err) return res.status(500).json({ error: 'Failed to update account' });
+                    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+                    res.json({ message: 'Account updated successfully', user: { id: parseInt(id), name, email } });
+                }
+            );
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });
 });
