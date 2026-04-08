@@ -59,6 +59,13 @@ data class PropertyResponse(
     val properties: List<Property>?,
     val error: String?
 )
+
+//Update user details
+data class UpdateUserRequest(
+    val name: String,
+    val email: String,
+    val password: String?
+)
 // Defines the API endpoints that our app can call on the backend server
 interface ApiService {
 
@@ -86,5 +93,8 @@ interface ApiService {
     suspend fun deleteProperty(@Path("propertyId") propertyId: Int): Response<PropertyResponse>
 
     @PUT("properties/{propertyId}")
-    suspend fun updateProperty(@Path("propertyId") propertyId: Int,@Body request: PropertyRequest): Response<PropertyResponse>
+    suspend fun updateProperty(@Path("propertyId") propertyId: Int, @Body request: PropertyRequest): Response<PropertyResponse>
+
+    @PUT("users/{id}")
+    suspend fun updateUser(@Path("id") userId: String, @Body request: UpdateUserRequest): Response<AuthResponse>
 }

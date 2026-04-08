@@ -64,6 +64,25 @@ class AuthRepository {
             false
         }
     }
+
+    suspend fun updateUser(userId: String, name: String, email: String, password: String?): AuthResult {
+    return try {
+        android.util.Log.d("UPDATE_USER", "userId: $userId, name: $name, email: $email, password: ${if (password != null) "provided" else "null"}")
+        val response = api.updateUser(userId, UpdateUserRequest(name, email, password))
+        android.util.Log.d("UPDATE_USER", "Response code: ${response.code()}")
+        android.util.Log.d("UPDATE_USER", "Error body: ${response.errorBody()?.string()}")
+        if (response.isSuccessful) {
+            val body = response.body()
+            AuthResult.Success(body?.message ?: "Account updated", null, body?.user)
+        } else {
+            val errorMessage = extractError(response.errorBody()?.string())
+            AuthResult.Error(errorMessage)
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("UPDATE_USER", "Exception: ${e.message}")
+        AuthResult.Error("Could not connect to server. Is it running?")
+    }
+}
     // Helper function to extract "error" from backend JSON
     private fun extractError(errorBody: String?): String {
         return try {

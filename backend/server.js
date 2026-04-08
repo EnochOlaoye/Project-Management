@@ -209,6 +209,44 @@ app.put('/properties/:propertyId', (req, res) => {
     });
 });
 
+// Update user account details
+app.put('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    try {
+        // If a new password was provided, hash it. Otherwise keep existing.
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            db.query(
+                'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?',
+                [name, email, hashedPassword, id],
+                (err, result) => {
+                    if (err) return res.status(500).json({ error: 'Failed to update account' });
+                    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+                    res.json({ message: 'Account updated successfully', user: { id: parseInt(id), name, email } });
+                }
+            );
+        } else {
+            db.query(
+                'UPDATE users SET name = ?, email = ? WHERE id = ?',
+                [name, email, id],
+                (err, result) => {
+                    if (err) return res.status(500).json({ error: 'Failed to update account' });
+                    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+                    res.json({ message: 'Account updated successfully', user: { id: parseInt(id), name, email } });
+                }
+            );
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });
 });

@@ -130,6 +130,8 @@ fun Solutions4UApp() {
         composable("settings/{userId}") { backStackEntry ->
             SettingsScreen(
                 userId = backStackEntry.arguments?.getString("userId") ?: "",
+                userName  = loggedInUser?.name ?: "",
+                userEmail = loggedInUser?.email ?: "",
                 onBackClick = { navController.popBackStack() },
                 onAccountDeleted = {
                     logoutAndReset()

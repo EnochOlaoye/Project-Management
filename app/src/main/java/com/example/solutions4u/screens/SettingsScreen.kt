@@ -25,6 +25,7 @@ import com.example.solutions4u.network.PropertyRepository
 import com.example.solutions4u.network.PropertyResult
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
+import com.example.solutions4u.network.AuthResult
 
 // Add Property Dialog 
 @Composable
@@ -281,11 +282,114 @@ private fun DeleteConfirmDialog(
     )
 }
 
+@Composable
+private fun EditLoginInfoDialog(
+    currentName: String,
+    currentEmail: String,
+    onDismiss: () -> Unit,
+    onSave: (name: String, email: String, password: String?) -> Unit
+) {
+    var name          by remember { mutableStateOf(currentName) }
+    var email         by remember { mutableStateOf(currentEmail) }
+    var password      by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var saveAttempted by remember { mutableStateOf(false) }
+
+    val nameError     = saveAttempted && name.isBlank()
+    val emailError    = saveAttempted && email.isBlank()
+    val passwordMismatch = saveAttempted && password != confirmPassword
+    val passwordTooShort = saveAttempted && password.isNotBlank() && password.length < 6
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Login Info", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value         = name,
+                    onValueChange = { name = it },
+                    label         = { Text("Full Name") },
+                    isError       = nameError,
+                    supportingText = if (nameError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = email,
+                    onValueChange = { email = it },
+                    label         = { Text("Email") },
+                    isError       = emailError,
+                    supportingText = if (emailError) {{ Text("Required", color = Red500) }} else null,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = password,
+                    onValueChange = { password = it },
+                    label         = { Text("New Password (leave blank to keep current)") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    isError       = passwordMismatch || passwordTooShort,
+                    supportingText = when {
+                        passwordTooShort -> {{ Text("Password must be at least 6 characters", color = Red500) }}
+                        passwordMismatch -> {{ Text("Passwords do not match", color = Red500) }}
+                        else -> null
+                    },
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+                OutlinedTextField(
+                    value         = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label         = { Text("Confirm New Password") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    isError       = passwordMismatch,
+                    singleLine    = true,
+                    modifier      = Modifier.fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor   = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    saveAttempted = true
+                    val passwordValid = password.isBlank() || (password == confirmPassword && password.length >= 6)
+                    if (name.isNotBlank() && email.isNotBlank() && passwordValid) {
+                        onSave(name.trim(), email.trim(), password.ifBlank { null })
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Save", color = White, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     userId: String,
+    userName: String,
+    userEmail: String,
     onBackClick: () -> Unit,
     onAccountDeleted: () -> Unit,
     onLogout: () -> Unit
@@ -304,6 +408,7 @@ fun SettingsScreen(
     var showEditProperty by remember { mutableStateOf(false) }
     var showSwitchProperty by remember { mutableStateOf(false) }
     var showDeleteList     by remember { mutableStateOf(false) }
+    var showEditLoginInfo by remember { mutableStateOf(false) }
     var propertyToDelete   by remember { mutableStateOf<Property?>(null) }
     var properties     by remember { mutableStateOf<List<Property>>(emptyList()) }
     var activeProperty by remember { mutableStateOf<Property?>(null) }
@@ -407,6 +512,27 @@ if (showEditProperty && activeProperty != null) {
                         activeProperty = updated
                     }
                     is PropertyResult.Error -> errorMessage = result.message
+                }
+                isLoading = false
+            }
+        }
+    )
+}
+
+// Edit login info
+if (showEditLoginInfo) {
+    EditLoginInfoDialog(
+        currentName  = userName,
+        currentEmail = userEmail,
+        onDismiss    = { showEditLoginInfo = false },
+        onSave       = { name: String, email: String, password: String? ->
+            showEditLoginInfo = false
+            scope.launch {
+                isLoading = true
+                errorMessage = null
+                when (val result = repository.updateUser(userId, name, email, password)) {
+                    is AuthResult.Success -> { /* updated successfully */ }
+                    is AuthResult.Error   -> errorMessage = result.message
                 }
                 isLoading = false
             }
@@ -597,7 +723,7 @@ if (showEditProperty && activeProperty != null) {
      Spacer(modifier = Modifier.height(12.dp))
 
  Button(
-        onClick = { /* no function yet */ },
+        onClick = { showEditLoginInfo = true },
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
         shape = RoundedCornerShape(8.dp)
