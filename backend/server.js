@@ -175,6 +175,39 @@ app.delete('/properties/:propertyId', (req, res) => {
     });
 });
 
+// Update a property
+app.put('/properties/:propertyId', (req, res) => {
+    const { propertyId } = req.params;
+    const { name, addressLine1, addressLine2, eircode } = req.body;
+
+    if (!name || !addressLine1 || !eircode) {
+        return res.status(400).json({ error: 'name, addressLine1 and eircode are required' });
+    }
+
+    const query = `
+        UPDATE properties
+        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?
+        WHERE id = ?
+    `;
+    db.query(query, [name, addressLine1, addressLine2 || '', eircode, propertyId], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to update property' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        res.json({
+            message: 'Property updated successfully',
+            property: {
+                id:           parseInt(propertyId),
+                name:         name,
+                addressLine1: addressLine1,
+                addressLine2: addressLine2 || '',
+                eircode:      eircode
+            }
+        });
+    });
+});
 
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });

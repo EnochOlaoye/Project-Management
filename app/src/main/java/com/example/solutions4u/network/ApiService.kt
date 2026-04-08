@@ -84,4 +84,7 @@ interface ApiService {
     // Delete a property by its ID
     @DELETE("properties/{propertyId}")
     suspend fun deleteProperty(@Path("propertyId") propertyId: Int): Response<PropertyResponse>
+
+    @PUT("properties/{propertyId}")
+    suspend fun updateProperty(@Path("propertyId") propertyId: Int,@Body request: PropertyRequest): Response<PropertyResponse>
 }

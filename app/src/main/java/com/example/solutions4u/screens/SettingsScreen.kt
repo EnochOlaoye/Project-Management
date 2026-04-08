@@ -37,7 +37,6 @@ private fun AddPropertyDialog(
     var addressLine2 by remember { mutableStateOf("") }
     var eircode      by remember { mutableStateOf("") }
     var saveAttempted by remember { mutableStateOf(false) }
-    var showEditProperty by remember { mutableStateOf(false) }
  
     // Required fields: name, addressLine1, eircode. addressLine2 is optional.
     val nameError    = saveAttempted && name.isBlank()
@@ -302,6 +301,7 @@ fun SettingsScreen(
     val topBarColor = bgColor.darken()
 
     var showAddProperty    by remember { mutableStateOf(false) }
+    var showEditProperty by remember { mutableStateOf(false) }
     var showSwitchProperty by remember { mutableStateOf(false) }
     var showDeleteList     by remember { mutableStateOf(false) }
     var propertyToDelete   by remember { mutableStateOf<Property?>(null) }
