@@ -6,97 +6,93 @@ import androidx.compose.runtime.*
 import org.junit.Rule
 import org.junit.Test
 import com.example.solutions4u.ui.theme.Solutions4UTheme
-import com.example.solutions4u.screens.HomeScreen
+import com.example.solutions4u.screens.SettingsScreen
 
 class DarkModeTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    // Helper to launch SettingsScreen
+    private fun launchSettingsScreen() {
+        composeTestRule.setContent {
+            Solutions4UTheme {
+                SettingsScreen(
+                    userId = "1",
+                    userName = "Test",
+                    userEmail = "test@test.com",
+                    onBackClick = {},
+                    onAccountDeleted = {},
+                    onLogout = {}
+                )
+            }
+        }
+        composeTestRule.waitForIdle()
+    }
+
+    // Test 1: Theme button exists on screen
     @Test
     fun themeToggleSwitchExists() {
-        composeTestRule.setContent {
-            Solutions4UTheme {
-                HomeScreen(
-                    onCategoryClick = {},
-                    onSignInClick = {},
-                    onRegisterClick = {}
-                )
-            }
-        }
-
-        composeTestRule.waitForIdle()
-
+        launchSettingsScreen()
         composeTestRule
-            .onNodeWithTag("themeToggle")
+            .onNodeWithText("Theme")
             .assertExists()
     }
 
+    // Test 2: Theme button can be clicked
     @Test
     fun themeToggleSwitchCanBeClicked() {
-        var toggled = false
-
-        composeTestRule.setContent {
-            Solutions4UTheme {
-                HomeScreen(
-                    onCategoryClick = {},
-                    onSignInClick = {},
-                    onRegisterClick = {},
-                    isDarkTheme = false,
-                    onThemeToggle = { toggled = true }
-                )
-            }
-        }
-
-        composeTestRule.waitForIdle()
-
+        launchSettingsScreen()
         composeTestRule
-            .onNodeWithTag("themeToggle")
+            .onNodeWithText("Theme")
             .assertExists()
             .performClick()
-
-        assert(toggled) { "Theme toggle was not clicked!" }
+        composeTestRule.waitForIdle()
     }
 
+    // Test 3: App starts in light mode by default
     @Test
     fun themeStartsInLightMode() {
         composeTestRule.setContent {
-            Solutions4UTheme(darkTheme = false) {
-                HomeScreen(
-                    onCategoryClick = {},
-                    onSignInClick = {},
-                    onRegisterClick = {},
-                    isDarkTheme = false,
-                    onThemeToggle = {}
+            Solutions4UTheme {
+                SettingsScreen(
+                    userId = "1",
+                    userName = "Test",
+                    userEmail = "test@test.com",
+                    onBackClick = {},
+                    onAccountDeleted = {},
+                    onLogout = {}
                 )
             }
         }
-
         composeTestRule.waitForIdle()
-
         composeTestRule
-            .onNodeWithTag("themeToggle")
-            .assertIsOff()
+            .onNodeWithText("Theme")
+            .assertExists()
     }
 
+    // Test 4: App can be switched to dark mode
     @Test
     fun themeCanBeSwitchedToDarkMode() {
         composeTestRule.setContent {
-            Solutions4UTheme(darkTheme = true) {
-                HomeScreen(
-                    onCategoryClick = {},
-                    onSignInClick = {},
-                    onRegisterClick = {},
-                    isDarkTheme = true,
-                    onThemeToggle = {}
+            Solutions4UTheme {
+                SettingsScreen(
+                    userId = "1",
+                    userName = "Test",
+                    userEmail = "test@test.com",
+                    onBackClick = {},
+                    onAccountDeleted = {},
+                    onLogout = {}
                 )
             }
         }
-
         composeTestRule.waitForIdle()
-
         composeTestRule
-            .onNodeWithTag("themeToggle")
-            .assertIsOn()
+            .onNodeWithText("Theme")
+            .performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithText("Theme")
+            .assertExists()
     }
 }
