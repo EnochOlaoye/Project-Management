@@ -20,7 +20,8 @@ class ExpenditureTest {
                     userId = "1",
                     userName = "Test User",
                     userEmail = "test@email.com",
-                    onBackClick = {}
+                    onBackClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -41,7 +42,8 @@ class ExpenditureTest {
                     userId = "1",
                     userName = "Test User",
                     userEmail = "test@email.com",
-                    onBackClick = {}
+                    onBackClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -59,7 +61,8 @@ class ExpenditureTest {
                     userId = "1",
                     userName = "Test User",
                     userEmail = "test@email.com",
-                    onBackClick = {}
+                    onBackClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -77,7 +80,8 @@ class ExpenditureTest {
                     userId = "1",
                     userName = "Test User",
                     userEmail = "test@email.com",
-                    onBackClick = {}
+                    onBackClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -95,7 +99,8 @@ class ExpenditureTest {
                     userId = "1",
                     userName = "Test User",
                     userEmail = "test@email.com",
-                    onBackClick = {}
+                    onBackClick = {},
+                    onSettingsClick = {}
                 )
             }
         }

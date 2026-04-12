@@ -6,6 +6,8 @@ import org.json.JSONObject
 // It wraps the raw API calls and returns a simple Success or Error result
 // so the screens don't have to deal with network details.
 
+import org.json.JSONObject
+
 // The result of an authentication attempt - either it worked or it didn't
 sealed class AuthResult {
     data class Success(val message: String, val token: String?, val user: UserData?) : AuthResult()
