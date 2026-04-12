@@ -57,7 +57,6 @@ fun ProfileScreen(
 
     // Controls for the "add a bill" dialog
     var showAddDialog by remember { mutableStateOf(false) }
-    var showResetDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
@@ -130,7 +129,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Swipeable tabs
             // Time period tabs
             Card(
                 modifier = Modifier
@@ -198,131 +196,7 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = White)
                 ) {
-                    periods.forEachIndexed { index, period ->
-                        Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (pagerState.currentPage == index) Green600 else Color.Transparent,
-                                contentColor = if (pagerState.currentPage == index) White else DarkGray
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(0.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                            modifier = Modifier
-                                .height(36.dp)
-                                .testTag("tab_$period")
-                        ) {
-                            Text(text = period, fontSize = 12.sp)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Total card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = White)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "${periods[pagerState.currentPage]} Total",
-                        fontSize = 14.sp,
-                        color = DarkGray
-                    )
-                    val currentBills = when (periods[pagerState.currentPage]) {
-                        "Daily" -> bills.filter { it.date == "2026-04-02" }
-                        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                        "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                        else -> bills
-                    }
-                    Text(
-                        text = "€${"%.2f".format(currentBills.sumOf { it.amount })}",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Green600
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Swipeable pager content
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .testTag("expenditurePager")
-            ) { page ->
-                val pageBills = when (periods[page]) {
-                    "Daily" -> bills.filter { it.date == "2026-04-02" }
-                    "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                    "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                    "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                    else -> bills
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    if (pageBills.isNotEmpty()) {
-                        BillsBarChart(bills = pageBills)
-                    } else {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = White)
-                        ) {
-                            Text(
-                                text = "No bills found for this period. Tap + to add a bill.",
-                                modifier = Modifier.padding(24.dp),
-                                color = DarkGray,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(80.dp))
-                }
-            }
-        }
-    }
-
-    // Reset dialog
-    if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Bills") },
-            text = { Text("This will clear all your bills and restore the sample data. Are you sure?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        bills = defaultBills
-                        nextId = 6
-                        showResetDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Red500)
-                ) {
-                    Text("Reset", color = White)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
-    // Add bill dialog
                         text = "No bills found for this period. Tap + to add a bill.",
                         modifier = Modifier.padding(24.dp),
                         color = DarkGray,
@@ -446,10 +320,13 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                 fontWeight = FontWeight.Bold,
                 color = Black
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             categoryTotals.forEachIndexed { index, (category, amount) ->
                 val fraction = if (maxAmount > 0) (amount / maxAmount).toFloat() else 0f
                 val barColor = barColors[index % barColors.size]
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -462,8 +339,14 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         color = Black
                     )
                 }
+
                 Spacer(modifier = Modifier.height(4.dp))
-                Canvas(modifier = Modifier.fillMaxWidth().height(20.dp)) {
+
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                ) {
                     drawRoundRect(
                         color = Color(0xFFF5F5F5),
                         size = Size(size.width, size.height),
@@ -478,6 +361,7 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         )
                     }
                 }
+
                 if (index < categoryTotals.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }
