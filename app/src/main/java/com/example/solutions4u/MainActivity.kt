@@ -151,7 +151,9 @@ fun Solutions4UApp() {
         }
 
         composable(NavRoutes.FAQ) {
-            FaqScreen(onBackClick = { navController.popBackStack() })
+            FaqScreen(onBackClick = { navController.popBackStack() },
+            isAdmin = loggedInUser?.email == "admin@solution4u.ie"
+            )
         }
     }
 }

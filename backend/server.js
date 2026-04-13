@@ -247,6 +247,50 @@ app.put('/users/:id', async (req, res) => {
     }
 });
 
+// Get all FAQs
+app.get('/faqs', (req, res) => {
+    db.query('SELECT * FROM faqs ORDER BY created_at ASC', (err, results) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch FAQs' });
+        res.json({ faqs: results });
+    });
+});
+
+// Add a FAQ
+app.post('/faqs', (req, res) => {
+    const { question, answer } = req.body;
+    if (!question || !answer) {
+        return res.status(400).json({ error: 'Question and answer are required' });
+    }
+    db.query('INSERT INTO faqs (question, answer) VALUES (?, ?)', [question, answer], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Failed to add FAQ' });
+        res.status(201).json({ message: 'FAQ added', faq: { id: result.insertId, question, answer } });
+    });
+});
+
+// Update a FAQ
+app.put('/faqs/:id', (req, res) => {
+    const { id } = req.params;
+    const { question, answer } = req.body;
+    if (!question || !answer) {
+        return res.status(400).json({ error: 'Question and answer are required' });
+    }
+    db.query('UPDATE faqs SET question = ?, answer = ? WHERE id = ?', [question, answer, id], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Failed to update FAQ' });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'FAQ not found' });
+        res.json({ message: 'FAQ updated', faq: { id: parseInt(id), question, answer } });
+    });
+});
+
+// Delete a FAQ
+app.delete('/faqs/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('DELETE FROM faqs WHERE id = ?', [id], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Failed to delete FAQ' });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'FAQ not found' });
+        res.json({ message: 'FAQ deleted' });
+    });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });
 });
