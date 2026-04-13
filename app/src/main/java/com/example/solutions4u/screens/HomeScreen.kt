@@ -141,28 +141,17 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            HeroSection(bgColor = bgColor, loggedInUser = loggedInUser)
+            HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
             FooterSection(onFaqClick = onFaqClick)
-
-            // Dashboard button to view expenditure without logging in
-            Button(
-                onClick = onDashboardClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = topBarColor)
-            ) {
-                Text("View Dashboard", color = White, fontSize = 16.sp)
-            }
         }
     }
 }
 
 // The big banner at the top of the home page with the app name and tagline
 @Composable
-fun HeroSection(bgColor: Color, loggedInUser: UserData? = null) {
+fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -204,7 +193,7 @@ fun HeroSection(bgColor: Color, loggedInUser: UserData? = null) {
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
-                    onClick = { },
+                    onClick = onProfileClick,
                     modifier = Modifier
                         .size(100.dp)
                         .background(bgColor.darken(), shape = RoundedCornerShape(50))
