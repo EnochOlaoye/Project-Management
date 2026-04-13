@@ -73,8 +73,10 @@ fun Solutions4UApp() {
                     logoutAndReset()
                     navController.navigate(NavRoutes.HOME) {
                     popUpTo(NavRoutes.HOME) { inclusive = true }
-                }
-                }
+                    }
+                },
+
+                onFaqClick = { navController.navigate(NavRoutes.FAQ) }
             )
         }
         composable(NavRoutes.ELECTRICITY) {
@@ -146,6 +148,10 @@ fun Solutions4UApp() {
                     }
                 }
             )
+        }
+
+        composable(NavRoutes.FAQ) {
+            FaqScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }

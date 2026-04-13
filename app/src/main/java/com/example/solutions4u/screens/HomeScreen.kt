@@ -41,7 +41,8 @@ fun HomeScreen(
     loggedInUser: UserData? = null,
     onProfileClick: () -> Unit = {},
     onDashboardClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {}
+    onLogoutClick: () -> Unit = {},
+    onFaqClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -142,7 +143,7 @@ fun HomeScreen(
             HeroSection(bgColor = bgColor)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
-            FooterSection()
+            FooterSection(onFaqClick = onFaqClick)
 
             // Dashboard button to view expenditure without logging in
             Button(
@@ -439,40 +440,40 @@ fun NewsCard(newsItem: NewsItem) {
     }
 }
 
-// The dark footer at the bottom of the home page with links grouped into three columns
-@Composable
-fun FooterSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(24.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text("Use cases", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("UI design", "UX design", "Wireframing", "Diagramming", "Brainstorming").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+    // The dark footer at the bottom of the home page with links grouped into three columns
+    @Composable
+    fun FooterSection(onFaqClick: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+            ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = onFaqClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                    shape = RoundedCornerShape(8.dp)
+                )  {
+                Text("FAQ", color = White, fontWeight = FontWeight.Bold)
                 }
-            }
-            Column {
-                Text("Explore", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("Design", "Prototyping", "Development features", "Design systems").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Contact", color = White, fontWeight = FontWeight.Bold)
                 }
-            }
-            Column {
-                Text("Resources", fontWeight = FontWeight.Bold, color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                listOf("Blog", "Best practices", "Colors", "Color wheel", "Support").forEach {
-                    Text(it, color = White.copy(alpha = 0.7f), fontSize = 12.sp)
-                }
-            }
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                    shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("About", color = White, fontWeight = FontWeight.Bold)
+            }    
         }
     }
 }

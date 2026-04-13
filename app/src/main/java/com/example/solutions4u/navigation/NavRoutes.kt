@@ -14,4 +14,5 @@ object NavRoutes {
     const val REGISTER = "register"
     // Profile route takes the user's id, name, and email as parameters in the URL
     const val PROFILE = "profile/{id}/{name}/{email}"
+    const val FAQ = "faq"
 }
