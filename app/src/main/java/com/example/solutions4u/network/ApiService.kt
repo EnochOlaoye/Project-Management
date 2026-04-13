@@ -66,6 +66,25 @@ data class UpdateUserRequest(
     val email: String,
     val password: String?
 )
+
+data class Faq(
+    val id: Int = 0,
+    val question: String = "",
+    val answer: String = ""
+)
+
+data class FaqResponse(
+    val message: String?,
+    val faq: Faq?,
+    val faqs: List<Faq>?,
+    val error: String?
+)
+
+data class FaqRequest(
+    val question: String,
+    val answer: String
+)
+
 // Defines the API endpoints that our app can call on the backend server
 interface ApiService {
 
@@ -97,4 +116,16 @@ interface ApiService {
 
     @PUT("users/{id}")
     suspend fun updateUser(@Path("id") userId: String, @Body request: UpdateUserRequest): Response<AuthResponse>
+
+    @GET("faqs")
+    suspend fun getFaqs(): Response<FaqResponse>
+
+    @POST("faqs")
+    suspend fun addFaq(@Body request: FaqRequest): Response<FaqResponse>
+
+    @PUT("faqs/{id}")
+    suspend fun updateFaq(@Path("id") id: Int, @Body request: FaqRequest): Response<FaqResponse>
+
+    @DELETE("faqs/{id}")
+    suspend fun deleteFaq(@Path("id") id: Int): Response<FaqResponse>
 }
