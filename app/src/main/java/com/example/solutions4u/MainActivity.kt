@@ -11,15 +11,12 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.solutions4u.navigation.NavRoutes
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.screens.*
 import com.example.solutions4u.ui.theme.Solutions4UTheme
-import com.example.solutions4u.screens.parseHexColor
 import com.example.solutions4u.ui.theme.ThemeManager
-import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 
 // The main entry point of the app. This is what Android launches first.
@@ -28,7 +25,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            
             Solutions4UTheme {
                 Solutions4UApp()
             }
@@ -86,8 +82,8 @@ fun Solutions4UApp() {
                 onLogoutClick = {
                     logoutAndReset()
                     navController.navigate(NavRoutes.HOME) {
-                    popUpTo(NavRoutes.HOME) { inclusive = true }
-                }
+                        popUpTo(NavRoutes.HOME) { inclusive = true }
+                    }
                 }
             )
         }
@@ -95,6 +91,7 @@ fun Solutions4UApp() {
         // Swipeable category pages
         composable("categories/{startIndex}") { backStackEntry ->
             val startIndex = backStackEntry.arguments?.getString("startIndex")?.toIntOrNull() ?: 0
+            val categories = listOf("Electricity", "Gas", "Car Insurance", "Broadband", "Mobile", "News")
             val pagerState = rememberPagerState(initialPage = startIndex) { categories.size }
 
             HorizontalPager(
@@ -138,25 +135,23 @@ fun Solutions4UApp() {
                 onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") }
             )
         }
-    )
-}
 
         composable("settings/{userId}") { backStackEntry ->
             SettingsScreen(
                 userId = backStackEntry.arguments?.getString("userId") ?: "",
-                userName  = loggedInUser?.name ?: "",
+                userName = loggedInUser?.name ?: "",
                 userEmail = loggedInUser?.email ?: "",
                 onBackClick = { navController.popBackStack() },
                 onAccountDeleted = {
                     logoutAndReset()
                     navController.navigate(NavRoutes.HOME) {
-                    popUpTo(NavRoutes.HOME) { inclusive = true }
-                        }
+                        popUpTo(NavRoutes.HOME) { inclusive = true }
+                    }
                 },
                 onLogout = {
                     logoutAndReset()
                     navController.navigate(NavRoutes.HOME) {
-                      popUpTo(NavRoutes.HOME) { inclusive = true }
+                        popUpTo(NavRoutes.HOME) { inclusive = true }
                     }
                 }
             )

@@ -38,12 +38,12 @@ private fun AddPropertyDialog(
     var addressLine2 by remember { mutableStateOf("") }
     var eircode      by remember { mutableStateOf("") }
     var saveAttempted by remember { mutableStateOf(false) }
- 
+
     // Required fields: name, addressLine1, eircode. addressLine2 is optional.
     val nameError    = saveAttempted && name.isBlank()
     val addr1Error   = saveAttempted && addressLine1.isBlank()
     val eircodeError = saveAttempted && eircode.isBlank()
- 
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Property", fontWeight = FontWeight.Bold) },
@@ -256,7 +256,7 @@ private fun PropertyListDialog(
         }
     )
 }
- 
+
 // Delete Confirmation Dialog 
 @Composable
 private fun DeleteConfirmDialog(
@@ -414,16 +414,16 @@ fun SettingsScreen(
     var activeProperty by remember { mutableStateOf<Property?>(null) }
     val propertyRepository = remember { PropertyRepository() }
     val userIdInt = userId.toIntOrNull() ?: 0
-    
+
     // Collect saved colour from DataStore
     val savedColorHex by ThemeManager.getBackgroundColor(context)
         .collectAsState(initial = ThemeManager.DEFAULT_COLOR)
- 
+
     val backgroundColor = remember(savedColorHex) {
         parseHexColor(savedColorHex) ?: Color(0xFF2E7D32)
     }
 
-     // Load properties on first launch
+    // Load properties on first launch
     LaunchedEffect(userIdInt) {
         if (userIdInt == 0) return@LaunchedEffect
         isLoading = true
@@ -450,7 +450,7 @@ fun SettingsScreen(
             }
         )
     }
-    
+
     // Add property
     if (showAddProperty) {
         AddPropertyDialog(
@@ -486,59 +486,59 @@ fun SettingsScreen(
         )
     }
 
-// Edit active property
-if (showEditProperty && activeProperty != null) {
-    EditPropertyDialog(
-        property  = activeProperty!!,
-        onDismiss = { showEditProperty = false },
-        onSave    = { name, addressLine1, addressLine2, eircode ->
-            showEditProperty = false
-            scope.launch {
-                isLoading = true
-                errorMessage = null
-                when (val result = propertyRepository.updateProperty(
-                    activeProperty!!.id, name, addressLine1, addressLine2, eircode
-                )) {
-                    is PropertyResult.Success -> {
-                        val updated = activeProperty!!.copy(
-                            name = name,
-                            addressLine1 = addressLine1,
-                            addressLine2 = addressLine2,
-                            eircode = eircode
-                        )
-                        properties = properties.map {
-                            if (it.id == updated.id) updated else it
+    // Edit active property
+    if (showEditProperty && activeProperty != null) {
+        EditPropertyDialog(
+            property  = activeProperty!!,
+            onDismiss = { showEditProperty = false },
+            onSave    = { name, addressLine1, addressLine2, eircode ->
+                showEditProperty = false
+                scope.launch {
+                    isLoading = true
+                    errorMessage = null
+                    when (val result = propertyRepository.updateProperty(
+                        activeProperty!!.id, name, addressLine1, addressLine2, eircode
+                    )) {
+                        is PropertyResult.Success -> {
+                            val updated = activeProperty!!.copy(
+                                name = name,
+                                addressLine1 = addressLine1,
+                                addressLine2 = addressLine2,
+                                eircode = eircode
+                            )
+                            properties = properties.map {
+                                if (it.id == updated.id) updated else it
+                            }
+                            activeProperty = updated
                         }
-                        activeProperty = updated
+                        is PropertyResult.Error -> errorMessage = result.message
                     }
-                    is PropertyResult.Error -> errorMessage = result.message
+                    isLoading = false
                 }
-                isLoading = false
             }
-        }
-    )
-}
+        )
+    }
 
-// Edit login info
-if (showEditLoginInfo) {
-    EditLoginInfoDialog(
-        currentName  = userName,
-        currentEmail = userEmail,
-        onDismiss    = { showEditLoginInfo = false },
-        onSave       = { name: String, email: String, password: String? ->
-            showEditLoginInfo = false
-            scope.launch {
-                isLoading = true
-                errorMessage = null
-                when (val result = repository.updateUser(userId, name, email, password)) {
-                    is AuthResult.Success -> { /* updated successfully */ }
-                    is AuthResult.Error   -> errorMessage = result.message
+    // Edit login info
+    if (showEditLoginInfo) {
+        EditLoginInfoDialog(
+            currentName  = userName,
+            currentEmail = userEmail,
+            onDismiss    = { showEditLoginInfo = false },
+            onSave       = { name: String, email: String, password: String? ->
+                showEditLoginInfo = false
+                scope.launch {
+                    isLoading = true
+                    errorMessage = null
+                    when (val result = repository.updateUser(userId, name, email, password)) {
+                        is AuthResult.Success -> { /* updated successfully */ }
+                        is AuthResult.Error   -> errorMessage = result.message
+                    }
+                    isLoading = false
                 }
-                isLoading = false
             }
-        }
-    )
-}
+        )
+    }
 
     // Switch property (icon button)
     if (showSwitchProperty) {
@@ -552,7 +552,7 @@ if (showEditLoginInfo) {
             }
         )
     }
- 
+
     // Delete — step 1: pick which property
     if (showDeleteList && propertyToDelete == null) {
         PropertyListDialog(
@@ -562,7 +562,7 @@ if (showEditLoginInfo) {
             onSelect   = { property -> propertyToDelete = property }
         )
     }
- 
+
     // Delete — step 2: confirm
     propertyToDelete?.let { prop ->
         DeleteConfirmDialog(
@@ -592,7 +592,6 @@ if (showEditLoginInfo) {
             }
         )
     }
-
 
     // Delete account dialog
     if (showConfirmDialog) {
@@ -651,7 +650,7 @@ if (showEditLoginInfo) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors( containerColor = topBarColor)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = topBarColor)
             )
         }
     ) { paddingValues ->
@@ -662,226 +661,171 @@ if (showEditLoginInfo) {
                 .background(bgColor)
                 .padding(24.dp)
         ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            Column(
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            // Profile icon
-            Box(
-            modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 32.dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            IconButton(
-            onClick = { showSwitchProperty = true },
-            modifier = Modifier
-            .size(100.dp) // makes it large
-            .background(topBarColor, shape = RoundedCornerShape(50))
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Profile Icon",
-                tint = White,
-             modifier = Modifier.size(48.dp)
-        )   
-    }
-}
-
-    // Buttons in middle of screen
-        Column(
-            modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = activeProperty?.name ?: "No Property Selected",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-             Button(
-        onClick = { showEditProperty = true },
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            "Change Details",
-            color = White,
-            fontWeight = FontWeight.Bold
-        )
-    }
-
-     Spacer(modifier = Modifier.height(12.dp))
-
- Button(
-        onClick = { showEditLoginInfo = true },
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            "Change Login Info",
-            color = White,
-            fontWeight = FontWeight.Bold
-        )
-    }
-
-Spacer(modifier = Modifier.height(12.dp))
-
-// Theme button
-
-Button(
-    onClick = { showThemeDialog = true },
-    modifier = Modifier.fillMaxWidth(),
-    colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-    shape = RoundedCornerShape(8.dp)
-) {
-    Text(
-        "Theme",
-        color = White,
-        fontWeight = FontWeight.Bold
-    )
-}
-
-Spacer(modifier = Modifier.height(12.dp))
-
- Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-Button(
-            onClick = { showAddProperty = true },
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                "Add",
-                color = White,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Button(
-            onClick = { showDeleteList = true },
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(containerColor = Red500),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                "Delete",
-                color = White,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-        // Bottom Buttons
-            Column(
-                modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Button(
-                onClick = { onLogout() },
-                modifier = Modifier
-                .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(
-                    "Logout",
-                    color = White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-            }
-            
-            Button(
-                onClick = { showConfirmDialog = true },
-                enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red500),
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        color = Red500,
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
+                // Profile icon
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    IconButton(
+                        onClick = { showSwitchProperty = true },
+                        modifier = Modifier
+                            .size(100.dp) // makes it large
+                            .background(topBarColor, shape = RoundedCornerShape(50))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile Icon",
+                            tint = White,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                }
+
+                // Buttons in middle of screen
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        "Delete Account",
-                        color = White,
+                        text = activeProperty?.name ?: "No Property Selected",
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        color = Color.Black
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = { showEditProperty = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "Change Details",
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = { showEditLoginInfo = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "Change Login Info",
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Theme button
+                    Button(
+                        onClick = { showThemeDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "Theme",
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = { showAddProperty = true },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                "Add",
+                                color = White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Button(
+                            onClick = { showDeleteList = true },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                "Delete",
+                                color = White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                // Bottom Buttons
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                ) {
+                    Button(
+                        onClick = { onLogout() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "Logout",
+                            color = White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = { showConfirmDialog = true },
+                        enabled = !isLoading,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = Red500,
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                "Delete Account",
+                                color = White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-    }
-    }
-}
-
-        // Bottom Buttons
-            Column(
-                modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Button(
-                onClick = { onLogout() },
-                modifier = Modifier
-                .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    "Logout",
-                    color = White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-            }
-            
-            Button(
-                onClick = { showConfirmDialog = true },
-                enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red500),
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        color = Red500,
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text(
-                        "Delete Account",
-                        color = White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
-            }
-        }
-    }
-    }
     }
 }

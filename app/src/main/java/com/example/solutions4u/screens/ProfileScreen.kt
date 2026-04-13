@@ -3,8 +3,6 @@ package com.example.solutions4u.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,9 +26,8 @@ import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     userId: String,
@@ -41,7 +38,7 @@ fun ProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
-// The user's utility bills - starts with some sample data
+    // The user's utility bills - starts with some sample data
     var bills by remember {
         mutableStateOf(
             listOf(
@@ -189,6 +186,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Show chart or empty message
             if (filteredBills.isNotEmpty()) {
                 BillsBarChart(bills = filteredBills)
             } else {
@@ -198,101 +196,16 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = White)
                 ) {
-                    periods.forEachIndexed { index, period ->
-                        Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (pagerState.currentPage == index) Green600 else Color.Transparent,
-                                contentColor = if (pagerState.currentPage == index) White else DarkGray
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(0.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                            modifier = Modifier
-                                .height(36.dp)
-                                .testTag("tab_$period")
-                        ) {
-                            Text(text = period, fontSize = 12.sp)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Total card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = White)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "${periods[pagerState.currentPage]} Total",
-                        fontSize = 14.sp,
-                        color = DarkGray
-                    )
-                    val currentBills = when (periods[pagerState.currentPage]) {
-                        "Daily" -> bills.filter { it.date == "2026-04-02" }
-                        "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                        "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                        "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                        else -> bills
-                    }
-                    Text(
-                        text = "€${"%.2f".format(currentBills.sumOf { it.amount })}",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Green600
+                        text = "No bills found for this period. Tap + to add a bill.",
+                        modifier = Modifier.padding(24.dp),
+                        color = DarkGray,
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Swipeable pager content
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .testTag("expenditurePager")
-            ) { page ->
-                val pageBills = when (periods[page]) {
-                    "Daily" -> bills.filter { it.date == "2026-04-02" }
-                    "Weekly" -> bills.filter { it.date >= "2026-03-26" }
-                    "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-03") }
-                    "Yearly" -> bills.filter { it.date.startsWith("2026") }
-                    else -> bills
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    if (pageBills.isNotEmpty()) {
-                        BillsBarChart(bills = pageBills)
-                    } else {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = White)
-                        ) {
-                            Text(
-                                text = "No bills found for this period. Tap + to add a bill.",
-                                modifier = Modifier.padding(24.dp),
-                                color = DarkGray,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(80.dp))
-                }
-            }
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 
@@ -305,7 +218,13 @@ fun ProfileScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        bills = defaultBills
+                        bills = listOf(
+                            UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
+                            UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
+                            UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
+                            UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
+                            UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
+                        )
                         nextId = 6
                         showResetDialog = false
                     },
@@ -323,18 +242,6 @@ fun ProfileScreen(
     }
 
     // Add bill dialog
-                        text = "No bills found for this period. Tap + to add a bill.",
-                        modifier = Modifier.padding(24.dp),
-                        color = DarkGray,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(80.dp))
-        }
-    }
-
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
@@ -463,7 +370,9 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Canvas(modifier = Modifier.fillMaxWidth().height(20.dp)) {
+                Canvas(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(20.dp)) {
                     drawRoundRect(
                         color = Color(0xFFF5F5F5),
                         size = Size(size.width, size.height),
