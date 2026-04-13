@@ -85,6 +85,11 @@ data class FaqRequest(
     val answer: String
 )
 
+data class ResetPasswordRequest(
+    val email: String,
+    val newPassword: String
+)
+
 // Defines the API endpoints that our app can call on the backend server
 interface ApiService {
 
@@ -128,4 +133,7 @@ interface ApiService {
 
     @DELETE("faqs/{id}")
     suspend fun deleteFaq(@Path("id") id: Int): Response<FaqResponse>
+
+    @POST("reset-password")
+suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<AuthResponse>
 }

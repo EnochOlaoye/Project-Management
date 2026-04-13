@@ -291,6 +291,31 @@ app.delete('/faqs/:id', (req, res) => {
     });
 });
 
+// Reset password by email
+app.post('/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+        return res.status(400).json({ error: 'Email and new password are required' });
+    }
+
+    const checkQuery = 'SELECT * FROM users WHERE email = ?';
+    db.query(checkQuery, [email], async (err, results) => {
+        if (err) return res.status(500).json({ error: 'Server error' });
+        if (results.length === 0) return res.status(404).json({ error: 'No account found with that email' });
+
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, email], (err) => {
+                if (err) return res.status(500).json({ error: 'Failed to reset password' });
+                res.json({ message: 'Password reset successfully' });
+            });
+        } catch (err) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'API is running' });
 });
