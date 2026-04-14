@@ -76,7 +76,9 @@ fun Solutions4UApp() {
                     }
                 },
 
-                onFaqClick = { navController.navigate(NavRoutes.FAQ) }
+                onFaqClick = { navController.navigate(NavRoutes.FAQ) },
+                onContactClick = { navController.navigate(NavRoutes.CONTACT) },
+                onAboutClick = { navController.navigate(NavRoutes.ABOUT) }
             )
         }
         composable(NavRoutes.ELECTRICITY) {
@@ -154,6 +156,14 @@ fun Solutions4UApp() {
             FaqScreen(onBackClick = { navController.popBackStack() },
             isAdmin = loggedInUser?.email == "admin@solution4u.ie"
             )
+        }
+
+        composable(NavRoutes.CONTACT) {
+            ContactScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(NavRoutes.ABOUT) {
+            AboutScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }

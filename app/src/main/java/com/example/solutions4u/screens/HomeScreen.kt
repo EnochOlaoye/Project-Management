@@ -43,7 +43,9 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onDashboardClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onFaqClick: () -> Unit = {}
+    onFaqClick: () -> Unit = {},
+    onContactClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -144,7 +146,10 @@ fun HomeScreen(
             HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
-            FooterSection(onFaqClick = onFaqClick)
+            FooterSection(onFaqClick = onFaqClick,
+                          onContactClick = onContactClick,
+                          onAboutClick = onAboutClick
+            )
         }
     }
 }
@@ -409,7 +414,9 @@ fun NewsCard(newsItem: NewsItem) {
 
     // The dark footer at the bottom of the home page with links grouped into three columns
     @Composable
-    fun FooterSection(onFaqClick: () -> Unit) {
+    fun FooterSection(onFaqClick: () -> Unit,
+                      onContactClick: () -> Unit,
+                      onAboutClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -428,14 +435,14 @@ fun NewsCard(newsItem: NewsItem) {
                 Text("FAQ", color = White, fontWeight = FontWeight.Bold)
                 }
                 Button(
-                    onClick = { },
+                    onClick = onContactClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("Contact", color = White, fontWeight = FontWeight.Bold)
                 }
                 Button(
-                    onClick = { },
+                    onClick = onAboutClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
                     shape = RoundedCornerShape(8.dp)
             ) {

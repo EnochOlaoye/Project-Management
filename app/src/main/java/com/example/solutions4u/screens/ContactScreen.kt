@@ -92,7 +92,7 @@ fun ContactScreen(onBackClick: () -> Unit) {
                 icon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = Green600, modifier = Modifier.size(28.dp)) },
                 title = "Address",
                 detail = "123 Example Street",
-                subtitle = "Dublin, Ireland"
+                subtitle = "Galway, Ireland"
             )
 
             Spacer(modifier = Modifier.height(32.dp))
