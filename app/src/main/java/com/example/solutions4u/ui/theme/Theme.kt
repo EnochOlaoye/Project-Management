@@ -1,13 +1,11 @@
 package com.example.solutions4u.ui.theme
 
-import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.solutions4u.screens.parseHexColor
-import kotlinx.coroutines.flow.map
 
 @Composable
 fun Solutions4UTheme(

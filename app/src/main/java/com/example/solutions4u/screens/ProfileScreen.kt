@@ -3,8 +3,6 @@ package com.example.solutions4u.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,9 +26,8 @@ import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     userId: String,
@@ -41,7 +38,7 @@ fun ProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
-// The user's utility bills - starts with some sample data
+    // The user's utility bills - starts with some sample data
     var bills by remember {
         mutableStateOf(
             listOf(
@@ -57,6 +54,7 @@ fun ProfileScreen(
 
     // Controls for the "add a bill" dialog
     var showAddDialog by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
@@ -129,6 +127,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Swipeable tabs
             // Time period tabs
             Card(
                 modifier = Modifier
@@ -187,6 +186,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Show chart or empty message
             if (filteredBills.isNotEmpty()) {
                 BillsBarChart(bills = filteredBills)
             } else {
@@ -209,6 +209,39 @@ fun ProfileScreen(
         }
     }
 
+    // Reset dialog
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Reset Bills") },
+            text = { Text("This will clear all your bills and restore the sample data. Are you sure?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        bills = listOf(
+                            UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
+                            UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
+                            UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
+                            UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
+                            UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
+                        )
+                        nextId = 6
+                        showResetDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Red500)
+                ) {
+                    Text("Reset", color = White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Add bill dialog
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
@@ -320,13 +353,10 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                 fontWeight = FontWeight.Bold,
                 color = Black
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             categoryTotals.forEachIndexed { index, (category, amount) ->
                 val fraction = if (maxAmount > 0) (amount / maxAmount).toFloat() else 0f
                 val barColor = barColors[index % barColors.size]
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -339,14 +369,10 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         color = Black
                     )
                 }
-
                 Spacer(modifier = Modifier.height(4.dp))
-
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(20.dp)
-                ) {
+                Canvas(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(20.dp)) {
                     drawRoundRect(
                         color = Color(0xFFF5F5F5),
                         size = Size(size.width, size.height),
@@ -361,7 +387,6 @@ fun BillsBarChart(bills: List<UtilityBill>) {
                         )
                     }
                 }
-
                 if (index < categoryTotals.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }
