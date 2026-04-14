@@ -84,6 +84,21 @@ class AuthRepository {
         }
     }
 
+    // Reset user password by email.
+    suspend fun resetPassword(email: String, newPassword: String): AuthResult {
+        return try {
+            val response = api.resetPassword(ResetPasswordRequest(email, newPassword))
+            if (response.isSuccessful) {
+                AuthResult.Success(response.body()?.message ?: "Password reset successfully", null, null)
+            } else {
+                val errorMessage = extractError(response.errorBody()?.string())
+                AuthResult.Error(errorMessage)
+            }
+        } catch (e: Exception) {
+            AuthResult.Error("Could not connect to server. Is it running?")
+        }
+    }
+
     // Helper function to extract "error" from backend JSON
     private fun extractError(errorBody: String?): String {
         return try {

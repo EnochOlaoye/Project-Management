@@ -28,6 +28,7 @@ import com.example.solutions4u.model.newsItems
 import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
+import androidx.compose.material.icons.filled.Person
 
 // The main landing page of the app.
 // Shows a top bar with navigation chips, a hero banner, category cards, news, and a footer.
@@ -42,7 +43,10 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onDashboardClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onFaqClick: () -> Unit = {}
+    onFaqClick: () -> Unit = {},
+    onContactClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {},
+    activePropertyIcon: String = "home"
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -140,28 +144,20 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            HeroSection(bgColor = bgColor)
+            HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick, activePropertyIcon = activePropertyIcon)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
-            FooterSection(onFaqClick = onFaqClick)
-
-            // Dashboard button to view expenditure without logging in
-            Button(
-                onClick = onDashboardClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = topBarColor)
-            ) {
-                Text("View Dashboard", color = White, fontSize = 16.sp)
-            }
+            FooterSection(onFaqClick = onFaqClick,
+                          onContactClick = onContactClick,
+                          onAboutClick = onAboutClick
+            )
         }
     }
 }
 
 // The big banner at the top of the home page with the app name and tagline
 @Composable
-fun HeroSection(bgColor: Color) {
+fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: () -> Unit = {}, activePropertyIcon: String = "home") {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,47 +192,24 @@ fun HeroSection(bgColor: Color) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
-        // Two placeholder image cards side by side
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Dollar sign card
-            Card(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(160.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFBBDEFB))
+        
+        if(loggedInUser != null) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(), 
-                    contentAlignment = Alignment.Center
+                IconButton(
+                    onClick = onProfileClick,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(bgColor.darken(), shape = RoundedCornerShape(50))
                 ) {
-                    Text(
-                        text = "$",
-                        fontSize = 72.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Red500)
-                }
-            }
-
-            // Piggy bank card
-            Card(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(160.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8BBD0))
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(), 
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "\uD83D\uDC37", fontSize = 64.sp)
+                    Icon(
+                        imageVector = getPropertyIcon(activePropertyIcon),
+                        contentDescription = "Profile",
+                        tint = White,
+                        modifier = Modifier.size(48.dp)
+                    )
                 }
             }
         }
@@ -442,7 +415,9 @@ fun NewsCard(newsItem: NewsItem) {
 
     // The dark footer at the bottom of the home page with links grouped into three columns
     @Composable
-    fun FooterSection(onFaqClick: () -> Unit) {
+    fun FooterSection(onFaqClick: () -> Unit,
+                      onContactClick: () -> Unit,
+                      onAboutClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -461,14 +436,14 @@ fun NewsCard(newsItem: NewsItem) {
                 Text("FAQ", color = White, fontWeight = FontWeight.Bold)
                 }
                 Button(
-                    onClick = { },
+                    onClick = onContactClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("Contact", color = White, fontWeight = FontWeight.Bold)
                 }
                 Button(
-                    onClick = { },
+                    onClick = onAboutClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
                     shape = RoundedCornerShape(8.dp)
             ) {

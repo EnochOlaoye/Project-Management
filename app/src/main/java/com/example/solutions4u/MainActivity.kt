@@ -18,6 +18,8 @@ import com.example.solutions4u.screens.*
 import com.example.solutions4u.ui.theme.Solutions4UTheme
 import com.example.solutions4u.ui.theme.ThemeManager
 import kotlinx.coroutines.launch
+import com.example.solutions4u.network.PropertyRepository
+import com.example.solutions4u.network.PropertyResult
 
 // The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
@@ -51,7 +53,8 @@ fun Solutions4UApp() {
         }
         loggedInUser = null
     }
-
+    var activePropertyIcon by remember { mutableStateOf("home") }
+    
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
@@ -84,24 +87,31 @@ fun Solutions4UApp() {
                     navController.navigate(NavRoutes.HOME) {
                         popUpTo(NavRoutes.HOME) { inclusive = true }
                     }
-                }
+                },
+
+                onFaqClick = { navController.navigate(NavRoutes.FAQ) },
+                onContactClick = { navController.navigate(NavRoutes.CONTACT) },
+                onAboutClick = { navController.navigate(NavRoutes.ABOUT) },
+                activePropertyIcon = activePropertyIcon
             )
         }
-
-        // Swipeable category pages
-        composable("categories/{startIndex}") { backStackEntry ->
-            val startIndex = backStackEntry.arguments?.getString("startIndex")?.toIntOrNull() ?: 0
-            val categories = listOf("Electricity", "Gas", "Car Insurance", "Broadband", "Mobile", "News")
-            val pagerState = rememberPagerState(initialPage = startIndex) { categories.size }
-
-            HorizontalPager(
-                state = pagerState
-            ) { page ->
-                CategoryScreen(
-                    categoryName = categories[page],
-                    onBackClick = { navController.popBackStack() }
-                )
-            }
+        composable(NavRoutes.ELECTRICITY) {
+            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() })
+        }
+        composable(NavRoutes.GAS) {
+            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() })
+        }
+        composable(NavRoutes.INSURANCE) {
+            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() })
+        }
+        composable(NavRoutes.BROADBAND) {
+            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() })
+        }
+        composable(NavRoutes.MOBILE) {
+            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() })
+        }
+        composable(NavRoutes.NEWS) {
+            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() })
         }
 
         composable(NavRoutes.SIGN_IN) {
@@ -109,6 +119,19 @@ fun Solutions4UApp() {
                 onBackClick = { navController.popBackStack() },
                 onSignInSuccess = { user ->
                     loggedInUser = user
+                    scope.launch {
+        val savedColor = ThemeManager.getUserColor(context, user.id)
+        ThemeManager.saveBackgroundColor(context, savedColor)
+        
+        // Load active property icon
+        val propertyRepository = PropertyRepository()
+        when (val result = propertyRepository.getProperties(user.id)) {
+            is PropertyResult.Success -> {
+                activePropertyIcon = result.properties.firstOrNull()?.icon ?: "home"
+            }
+            else -> {}
+        }
+    }
                     navController.navigate("profile/${user.id}/${user.name}/${user.email}") {
                         popUpTo(NavRoutes.HOME)
                     }
@@ -153,8 +176,23 @@ fun Solutions4UApp() {
                     navController.navigate(NavRoutes.HOME) {
                         popUpTo(NavRoutes.HOME) { inclusive = true }
                     }
-                }
+                },
+                onIconChanged = { iconKey -> activePropertyIcon = iconKey }
             )
+        }
+
+        composable(NavRoutes.FAQ) {
+            FaqScreen(onBackClick = { navController.popBackStack() },
+            isAdmin = loggedInUser?.email == "admin@solution4u.ie"
+            )
+        }
+
+        composable(NavRoutes.CONTACT) {
+            ContactScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(NavRoutes.ABOUT) {
+            AboutScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }

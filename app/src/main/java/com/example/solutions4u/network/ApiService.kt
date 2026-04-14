@@ -40,7 +40,8 @@ data class Property(
     val name: String = "",
     val addressLine1: String = "",
     val addressLine2: String = "",
-    val eircode: String = ""
+    val eircode: String = "",
+    val icon: String = "home"
 )
 
 // Data we send when creating a new property
@@ -49,7 +50,8 @@ data class PropertyRequest(
     val name: String,
     val addressLine1: String,
     val addressLine2: String,
-    val eircode: String
+    val eircode: String,
+    val icon: String = "home"
 )
 
 // Response we get back from property endpoints
@@ -83,6 +85,11 @@ data class FaqResponse(
 data class FaqRequest(
     val question: String,
     val answer: String
+)
+
+data class ResetPasswordRequest(
+    val email: String,
+    val newPassword: String
 )
 
 // Defines the API endpoints that our app can call on the backend server
@@ -128,4 +135,7 @@ interface ApiService {
 
     @DELETE("faqs/{id}")
     suspend fun deleteFaq(@Path("id") id: Int): Response<FaqResponse>
+
+    @POST("reset-password")
+suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<AuthResponse>
 }

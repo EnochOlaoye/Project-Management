@@ -25,6 +25,7 @@ db.connect((err) => {
 });
 
 app.post('/register', async (req, res) => {
+    console.log('Register hit:', req.body);
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -37,6 +38,7 @@ app.post('/register', async (req, res) => {
         const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
         db.query(query, [name, email, hashedPassword], (err, result) => {
             if (err) {
+                console.log('DB error:', err);
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(409).json({ error: 'Email already registered' });
                 }
@@ -50,6 +52,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+    console.log('Loginhit:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -122,7 +125,8 @@ app.get('/users/:userId/properties', (req, res) => {
             name:         row.name,
             addressLine1: row.address_line1,
             addressLine2: row.address_line2 || '',
-            eircode:      row.eircode
+            eircode:      row.eircode,
+            icon:         row.icon || 'home'
         }));
         res.json({ properties });
     });
@@ -137,8 +141,8 @@ app.post('/properties', (req, res) => {
     }
  
     const query = `
-        INSERT INTO properties (user_id, name, address_line1, address_line2, eircode)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO properties (user_id, name, address_line1, address_line2, eircode, icon)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
     db.query(query, [userId, name, addressLine1, addressLine2 || '', eircode], (err, result) => {
         if (err) {
@@ -153,7 +157,8 @@ app.post('/properties', (req, res) => {
                 name:         name,
                 addressLine1: addressLine1,
                 addressLine2: addressLine2 || '',
-                eircode:      eircode
+                eircode:      eircode,
+                icon:         icon || 'home'
             }
         });
     });
@@ -178,7 +183,7 @@ app.delete('/properties/:propertyId', (req, res) => {
 // Update a property
 app.put('/properties/:propertyId', (req, res) => {
     const { propertyId } = req.params;
-    const { name, addressLine1, addressLine2, eircode } = req.body;
+    const { name, addressLine1, addressLine2, eircode, icon } = req.body;
 
     if (!name || !addressLine1 || !eircode) {
         return res.status(400).json({ error: 'name, addressLine1 and eircode are required' });
@@ -186,10 +191,10 @@ app.put('/properties/:propertyId', (req, res) => {
 
     const query = `
         UPDATE properties
-        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?
+        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?, icon = ?
         WHERE id = ?
     `;
-    db.query(query, [name, addressLine1, addressLine2 || '', eircode, propertyId], (err, result) => {
+    db.query(query, [name, addressLine1, addressLine2 || '', eircode, icon || 'home', propertyId], (err, result) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to update property' });
         }
@@ -203,7 +208,8 @@ app.put('/properties/:propertyId', (req, res) => {
                 name:         name,
                 addressLine1: addressLine1,
                 addressLine2: addressLine2 || '',
-                eircode:      eircode
+                eircode:      eircode,
+                icon:         icon || 'home'
             }
         });
     });
@@ -288,6 +294,31 @@ app.delete('/faqs/:id', (req, res) => {
         if (err) return res.status(500).json({ error: 'Failed to delete FAQ' });
         if (result.affectedRows === 0) return res.status(404).json({ error: 'FAQ not found' });
         res.json({ message: 'FAQ deleted' });
+    });
+});
+
+// Reset password by email
+app.post('/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+        return res.status(400).json({ error: 'Email and new password are required' });
+    }
+
+    const checkQuery = 'SELECT * FROM users WHERE email = ?';
+    db.query(checkQuery, [email], async (err, results) => {
+        if (err) return res.status(500).json({ error: 'Server error' });
+        if (results.length === 0) return res.status(404).json({ error: 'No account found with that email' });
+
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, email], (err) => {
+                if (err) return res.status(500).json({ error: 'Failed to reset password' });
+                res.json({ message: 'Password reset successfully' });
+            });
+        } catch (err) {
+            res.status(500).json({ error: 'Server error' });
+        }
     });
 });
 

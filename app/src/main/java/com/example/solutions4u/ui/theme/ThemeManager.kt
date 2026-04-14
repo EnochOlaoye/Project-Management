@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
+import kotlinx.coroutines.flow.first
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_prefs")
 
@@ -36,4 +37,18 @@ object ThemeManager {
             prefs[BACKGROUND_COLOR_KEY] = hexColor.removePrefix("#")
         }
     }
+
+    suspend fun getUserColor(context: Context, userId: Int): String {
+    val userKey = stringPreferencesKey("user_color_$userId")
+    return context.dataStore.data.map { prefs ->
+        prefs[userKey] ?: DEFAULT_COLOR
+    }.first()
+}
+
+suspend fun saveUserColor(context: Context, userId: Int, hexColor: String) {
+    val userKey = stringPreferencesKey("user_color_$userId")
+    context.dataStore.edit { prefs ->
+        prefs[userKey] = hexColor.removePrefix("#")
+    }
+}
 }
