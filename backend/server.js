@@ -25,6 +25,7 @@ db.connect((err) => {
 });
 
 app.post('/register', async (req, res) => {
+    console.log('Register hit:', req.body);
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -37,6 +38,7 @@ app.post('/register', async (req, res) => {
         const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
         db.query(query, [name, email, hashedPassword], (err, result) => {
             if (err) {
+                console.log('DB error:', err);
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(409).json({ error: 'Email already registered' });
                 }
@@ -50,6 +52,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+    console.log('Loginhit:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
