@@ -38,11 +38,12 @@ class PropertyRepository {
         name: String,
         addressLine1: String,
         addressLine2: String,
-        eircode: String
+        eircode: String,
+        icon: String = "home"
     ): PropertyResult {
         return try {
             val response = api.addProperty(
-                PropertyRequest(userId, name, addressLine1, addressLine2, eircode)
+                PropertyRequest(userId, name, addressLine1, addressLine2, eircode, icon)
             )
             if (response.isSuccessful) {
                 PropertyResult.Success(property = response.body()?.property)
@@ -73,12 +74,13 @@ class PropertyRepository {
     name: String,
     addressLine1: String,
     addressLine2: String,
-    eircode: String
+    eircode: String,
+    icon: String = "home"
 ): PropertyResult {
     return try {
         val response = api.updateProperty(
             propertyId,
-            PropertyRequest(0, name, addressLine1, addressLine2, eircode)
+            PropertyRequest(0, name, addressLine1, addressLine2, eircode, icon)
         )
         if (response.isSuccessful) {
             PropertyResult.Success(property = response.body()?.property)

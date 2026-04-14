@@ -19,6 +19,8 @@ import com.example.solutions4u.screens.parseHexColor
 import com.example.solutions4u.ui.theme.ThemeManager
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
+import com.example.solutions4u.network.PropertyRepository
+import com.example.solutions4u.network.PropertyResult
 
 // The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
@@ -52,7 +54,8 @@ fun Solutions4UApp() {
         }
         loggedInUser = null
     }
-
+    var activePropertyIcon by remember { mutableStateOf("home") }
+    
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
@@ -78,7 +81,8 @@ fun Solutions4UApp() {
 
                 onFaqClick = { navController.navigate(NavRoutes.FAQ) },
                 onContactClick = { navController.navigate(NavRoutes.CONTACT) },
-                onAboutClick = { navController.navigate(NavRoutes.ABOUT) }
+                onAboutClick = { navController.navigate(NavRoutes.ABOUT) },
+                activePropertyIcon = activePropertyIcon
             )
         }
         composable(NavRoutes.ELECTRICITY) {
@@ -104,6 +108,19 @@ fun Solutions4UApp() {
                 onBackClick = { navController.popBackStack() },
                 onSignInSuccess = { user ->
                     loggedInUser = user
+                    scope.launch {
+        val savedColor = ThemeManager.getUserColor(context, user.id)
+        ThemeManager.saveBackgroundColor(context, savedColor)
+        
+        // Load active property icon
+        val propertyRepository = PropertyRepository()
+        when (val result = propertyRepository.getProperties(user.id)) {
+            is PropertyResult.Success -> {
+                activePropertyIcon = result.properties.firstOrNull()?.icon ?: "home"
+            }
+            else -> {}
+        }
+    }
                     navController.navigate("profile/${user.id}/${user.name}/${user.email}") {
                         popUpTo(NavRoutes.HOME)
                     }
@@ -148,7 +165,8 @@ fun Solutions4UApp() {
                     navController.navigate(NavRoutes.HOME) {
                       popUpTo(NavRoutes.HOME) { inclusive = true }
                     }
-                }
+                },
+                onIconChanged = { iconKey -> activePropertyIcon = iconKey }
             )
         }
 

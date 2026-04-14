@@ -40,7 +40,8 @@ data class Property(
     val name: String = "",
     val addressLine1: String = "",
     val addressLine2: String = "",
-    val eircode: String = ""
+    val eircode: String = "",
+    val icon: String = "home"
 )
 
 // Data we send when creating a new property
@@ -49,7 +50,8 @@ data class PropertyRequest(
     val name: String,
     val addressLine1: String,
     val addressLine2: String,
-    val eircode: String
+    val eircode: String,
+    val icon: String = "home"
 )
 
 // Response we get back from property endpoints

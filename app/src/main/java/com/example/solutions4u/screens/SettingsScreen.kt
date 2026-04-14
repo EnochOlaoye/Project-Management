@@ -26,6 +26,7 @@ import com.example.solutions4u.network.PropertyResult
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
 import com.example.solutions4u.network.AuthResult
+import androidx.compose.material.icons.filled.Edit
 
 // Add Property Dialog 
 @Composable
@@ -392,7 +393,8 @@ fun SettingsScreen(
     userEmail: String,
     onBackClick: () -> Unit,
     onAccountDeleted: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onIconChanged: (String) -> Unit = {}
 ) {
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
@@ -414,6 +416,7 @@ fun SettingsScreen(
     var activeProperty by remember { mutableStateOf<Property?>(null) }
     val propertyRepository = remember { PropertyRepository() }
     val userIdInt = userId.toIntOrNull() ?: 0
+    var showIconPicker by remember { mutableStateOf(false) }
     
     // Collect saved colour from DataStore
     val savedColorHex by ThemeManager.getBackgroundColor(context)
@@ -512,6 +515,42 @@ if (showEditProperty && activeProperty != null) {
                         activeProperty = updated
                     }
                     is PropertyResult.Error -> errorMessage = result.message
+                }
+                isLoading = false
+            }
+        }
+    )
+}
+
+// Icon picker
+android.util.Log.d("ICON_UPDATE", "showIconPicker: $showIconPicker, activeProperty: ${activeProperty?.name}")
+if (showIconPicker && activeProperty != null) {
+    PropertyIconPickerDialog(
+        currentIcon = activeProperty!!.icon,
+        onDismiss = { showIconPicker = false },
+        onIconSelected = { iconKey ->
+            showIconPicker = false
+            scope.launch {
+                isLoading = true
+                val prop = activeProperty!!
+                 android.util.Log.d("ICON_UPDATE", "Updating icon to: $iconKey for property: ${prop.id}")
+                when (val result = propertyRepository.updateProperty(
+                    prop.id, prop.name, prop.addressLine1,
+                    prop.addressLine2, prop.eircode, iconKey
+                )) {
+                    is PropertyResult.Success -> {
+    android.util.Log.d("ICON_UPDATE", "Success updating icon to: $iconKey")
+    android.util.Log.d("ICON_UPDATE", "Property id: ${prop.id}")
+    val updated = prop.copy(icon = iconKey)
+    properties = properties.map {
+        if (it.id == updated.id) updated else it
+    }
+    activeProperty = updated
+    onIconChanged(iconKey)
+}
+                    is PropertyResult.Error -> {
+                        android.util.Log.e("ICON_UPDATE", "Error: ${result.message}")
+                        errorMessage = result.message }
                 }
                 isLoading = false
             }
@@ -670,26 +709,48 @@ if (showEditLoginInfo) {
         ) {
 
             // Profile icon
-            Box(
+            key(activeProperty?.icon) {
+Box(
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 32.dp),
+    contentAlignment = Alignment.TopCenter
+) {
+    Box(contentAlignment = Alignment.BottomEnd) {
+        Box(
             modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 32.dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            IconButton(
-            onClick = { showSwitchProperty = true },
-            modifier = Modifier
-            .size(100.dp) // makes it large
-            .background(topBarColor, shape = RoundedCornerShape(50))
+                .size(100.dp)
+                .background(topBarColor, shape = RoundedCornerShape(50))
+                .clickable { showSwitchProperty = true },
+            contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                imageVector = getPropertyIcon(activeProperty?.icon ?: "home"),
                 contentDescription = "Profile Icon",
                 tint = White,
-             modifier = Modifier.size(48.dp)
-        )   
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(Red500, shape = RoundedCornerShape(50))
+                .clickable {
+                    android.util.Log.d("ICON_PICKER", "Edit clicked")
+                    showIconPicker = true
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit Icon",
+                tint = White,
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }
+            }
 
     // Buttons in middle of screen
         Column(

@@ -125,7 +125,8 @@ app.get('/users/:userId/properties', (req, res) => {
             name:         row.name,
             addressLine1: row.address_line1,
             addressLine2: row.address_line2 || '',
-            eircode:      row.eircode
+            eircode:      row.eircode,
+            icon:         row.icon || 'home'
         }));
         res.json({ properties });
     });
@@ -140,8 +141,8 @@ app.post('/properties', (req, res) => {
     }
  
     const query = `
-        INSERT INTO properties (user_id, name, address_line1, address_line2, eircode)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO properties (user_id, name, address_line1, address_line2, eircode, icon)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
     db.query(query, [userId, name, addressLine1, addressLine2 || '', eircode], (err, result) => {
         if (err) {
@@ -156,7 +157,8 @@ app.post('/properties', (req, res) => {
                 name:         name,
                 addressLine1: addressLine1,
                 addressLine2: addressLine2 || '',
-                eircode:      eircode
+                eircode:      eircode,
+                icon:         icon || 'home'
             }
         });
     });
@@ -181,7 +183,7 @@ app.delete('/properties/:propertyId', (req, res) => {
 // Update a property
 app.put('/properties/:propertyId', (req, res) => {
     const { propertyId } = req.params;
-    const { name, addressLine1, addressLine2, eircode } = req.body;
+    const { name, addressLine1, addressLine2, eircode, icon } = req.body;
 
     if (!name || !addressLine1 || !eircode) {
         return res.status(400).json({ error: 'name, addressLine1 and eircode are required' });
@@ -189,10 +191,10 @@ app.put('/properties/:propertyId', (req, res) => {
 
     const query = `
         UPDATE properties
-        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?
+        SET name = ?, address_line1 = ?, address_line2 = ?, eircode = ?, icon = ?
         WHERE id = ?
     `;
-    db.query(query, [name, addressLine1, addressLine2 || '', eircode, propertyId], (err, result) => {
+    db.query(query, [name, addressLine1, addressLine2 || '', eircode, icon || 'home', propertyId], (err, result) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to update property' });
         }
@@ -206,7 +208,8 @@ app.put('/properties/:propertyId', (req, res) => {
                 name:         name,
                 addressLine1: addressLine1,
                 addressLine2: addressLine2 || '',
-                eircode:      eircode
+                eircode:      eircode,
+                icon:         icon || 'home'
             }
         });
     });

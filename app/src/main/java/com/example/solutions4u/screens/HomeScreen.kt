@@ -45,7 +45,8 @@ fun HomeScreen(
     onLogoutClick: () -> Unit = {},
     onFaqClick: () -> Unit = {},
     onContactClick: () -> Unit = {},
-    onAboutClick: () -> Unit = {}
+    onAboutClick: () -> Unit = {},
+    activePropertyIcon: String = "home"
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -143,7 +144,7 @@ fun HomeScreen(
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
         ) {
-            HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick)
+            HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick, activePropertyIcon = activePropertyIcon)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
             FooterSection(onFaqClick = onFaqClick,
@@ -156,7 +157,7 @@ fun HomeScreen(
 
 // The big banner at the top of the home page with the app name and tagline
 @Composable
-fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: () -> Unit = {}) {
+fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: () -> Unit = {}, activePropertyIcon: String = "home") {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -204,7 +205,7 @@ fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: 
                         .background(bgColor.darken(), shape = RoundedCornerShape(50))
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Person,
+                        imageVector = getPropertyIcon(activePropertyIcon),
                         contentDescription = "Profile",
                         tint = White,
                         modifier = Modifier.size(48.dp)

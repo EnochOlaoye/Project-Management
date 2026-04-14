@@ -25,3 +25,5 @@ CREATE TABLE faqs (
     answer TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE properties ADD COLUMN icon VARCHAR(50) DEFAULT 'home' AFTER eircode;
