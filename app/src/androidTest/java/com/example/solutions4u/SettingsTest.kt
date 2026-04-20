@@ -67,14 +67,15 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Change Login Info").assertExists()
     }
 
-   // Test 4: Change Login Info button can be clicked and dialog appears
-   @Test
-   fun changeLoginInfoDialogOpens() {
-       launchSettingsScreen()
-       composeTestRule.onNodeWithText("Change Login Info").performClick()
-       composeTestRule.waitForIdle()
-       composeTestRule.onAllNodesWithText("Change Login Info")[0].assertExists()
-}
+    // Test 4: Change Login Info button can be clicked and dialog appears
+    @Test
+    fun changeLoginInfoDialogOpens() {
+        launchSettingsScreen()
+        composeTestRule.onNodeWithText("Change Login Info").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onAllNodesWithText("Change Login Info")[0].assertExists()
+    }
+
     // Test 5: Add property button exists
     @Test
     fun addPropertyButtonExists() {
@@ -114,11 +115,11 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Change Details").assertExists()
     }
 
-    // Test 10: Delete Account button exists
-    @Test
-    fun deleteAccountButtonExists() {
-        launchSettingsScreen()
-        composeTestRule.onNodeWithText("Delete Account").assertExists()
+   // Test 10: Delete Account button exists
+   @Test
+   fun deleteAccountButtonExists() {
+       launchSettingsScreen()
+       composeTestRule.onNodeWithText("Delete Account").assertExists()
     }
 
     // Test 11: Delete Account button can be clicked and confirmation dialog appears

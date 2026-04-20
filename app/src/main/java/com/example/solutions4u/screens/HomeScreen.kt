@@ -147,9 +147,11 @@ fun HomeScreen(
             HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick, activePropertyIcon = activePropertyIcon)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
             NewsSection(bgColor = bgColor)
-            FooterSection(onFaqClick = onFaqClick,
-                          onContactClick = onContactClick,
-                          onAboutClick = onAboutClick
+            FooterSection(
+                onFaqClick = onFaqClick,
+                onContactClick = onContactClick,
+                onAboutClick = onAboutClick,
+                onDashboardClick = onDashboardClick
             )
         }
     }
@@ -192,8 +194,8 @@ fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: 
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        
-        if(loggedInUser != null) {
+
+        if (loggedInUser != null) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -218,7 +220,7 @@ fun HeroSection(bgColor: Color, loggedInUser: UserData? = null, onProfileClick: 
 
 // Grid of category cards showing the six utility types the user can compare
 @Composable
-fun CategoryCardsSection(onCategoryClick: (String) -> Unit, bgColor : Color) {
+fun CategoryCardsSection(onCategoryClick: (String) -> Unit, bgColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -386,7 +388,8 @@ fun NewsCard(newsItem: NewsItem) {
                 Text(
                     text = newsItem.title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp, color = White
+                    fontSize = 16.sp,
+                    color = White
                 )
                 Text(
                     text = newsItem.description,
@@ -413,42 +416,58 @@ fun NewsCard(newsItem: NewsItem) {
     }
 }
 
-    // The dark footer at the bottom of the home page with links grouped into three columns
-    @Composable
-    fun FooterSection(onFaqClick: () -> Unit,
-                      onContactClick: () -> Unit,
-                      onAboutClick: () -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(24.dp)
+// The dark footer at the bottom of the home page with links grouped into three columns
+@Composable
+fun FooterSection(
+    onFaqClick: () -> Unit,
+    onContactClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onDashboardClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = onFaqClick,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                shape = RoundedCornerShape(8.dp)
             ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onFaqClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
-                    shape = RoundedCornerShape(8.dp)
-                )  {
                 Text("FAQ", color = White, fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onContactClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Contact", color = White, fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onAboutClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
-                    shape = RoundedCornerShape(8.dp)
+            }
+            Button(
+                onClick = onContactClick,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Contact", color = White, fontWeight = FontWeight.Bold)
+            }
+            Button(
+                onClick = onAboutClick,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text("About", color = White, fontWeight = FontWeight.Bold)
-            }    
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Dashboard button to view expenditure without logging in
+        Button(
+            onClick = onDashboardClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("viewDashboardButton"),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken())
+        ) {
+            Text("View Dashboard", color = White, fontSize = 16.sp)
         }
     }
 }
