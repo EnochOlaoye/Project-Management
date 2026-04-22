@@ -91,3 +91,54 @@ val newsItems = listOf(
         category = "Company"
     )
 )
+
+data class SearchableCompany(
+    val name: String,
+    val category: String,
+    val route: String,
+    val aliases: List<String> = emptyList()
+)
+
+val searchableCompanies = listOf(
+    SearchableCompany("Electric Ireland", "Electricity", "electricity", listOf("electric", "ireland")),
+    SearchableCompany("Bord Gáis Energy", "Electricity", "electricity", listOf("bord gais", "bordgais", "bord gas")),
+    SearchableCompany("SSE Airtricity", "Electricity", "electricity", listOf("sse", "airtricity")),
+    SearchableCompany("Energia", "Electricity", "electricity", listOf("energia")),
+    SearchableCompany("Bord Gáis", "Gas", "gas", listOf("bord gais", "bordgais", "bord gas")),
+    SearchableCompany("Electric Ireland", "Gas", "gas", listOf("electric ireland")),
+    SearchableCompany("SSE Airtricity", "Gas", "gas", listOf("sse", "airtricity")),
+    SearchableCompany("Flogas", "Gas", "gas", listOf("flo gas", "flogas")),
+    SearchableCompany("Eir", "Broadband", "broadband", listOf("eircom", "eir")),
+    SearchableCompany("Virgin Media", "Broadband", "broadband", listOf("virgin", "media")),
+    SearchableCompany("Sky", "Broadband", "broadband", listOf("sky broadband")),
+    SearchableCompany("Vodafone", "Broadband", "broadband", listOf("vodafone broadband")),
+    SearchableCompany("Three", "Mobile", "mobile", listOf("three mobile", "3")),
+    SearchableCompany("Vodafone", "Mobile", "mobile", listOf("vodafone mobile")),
+    SearchableCompany("Eir Mobile", "Mobile", "mobile", listOf("eir mobile")),
+    SearchableCompany("48", "Mobile", "mobile", listOf("fortyeight", "48 mobile")),
+    SearchableCompany("AXA", "Car Insurance", "insurance", listOf("axa insurance")),
+    SearchableCompany("Allianz", "Car Insurance", "insurance", listOf("allianz insurance")),
+    SearchableCompany("Aviva", "Car Insurance", "insurance", listOf("aviva insurance")),
+    SearchableCompany("Liberty", "Car Insurance", "insurance", listOf("liberty insurance"))
+)
+
+fun searchCompanies(query: String): List<SearchableCompany> {
+    if (query.isBlank()) return emptyList()
+    val normalised = query.lowercase()
+        .replace("á", "a").replace("é", "e")
+        .replace("í", "i").replace("ó", "o")
+        .replace("ú", "u")
+    return searchableCompanies.filter { company ->
+        val companyNormalised = company.name.lowercase()
+            .replace("á", "a").replace("é", "e")
+            .replace("í", "i").replace("ó", "o")
+            .replace("ú", "u")
+        val aliasMatch = company.aliases.any { alias ->
+            alias.replace("á", "a").replace("é", "e")
+                .replace("í", "i").replace("ó", "o")
+                .replace("ú", "u")
+                .contains(normalised)
+        }
+        companyNormalised.contains(normalised) || aliasMatch
+    }
+}
