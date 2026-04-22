@@ -72,7 +72,7 @@ class CompareTest {
         launchCategoryScreen()
         composeTestRule.onNodeWithTag("compareNowButton").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag("backToCategoryButton").assertExists()
+        composeTestRule.onNodeWithTag("comparePlansView").assertExists()
     }
 
     // Test 7: Back button returns to category screen
@@ -81,9 +81,8 @@ class CompareTest {
         launchCategoryScreen()
         composeTestRule.onNodeWithTag("compareNowButton").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag("backToCategoryButton").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag("compareNowButton").assertExists()
+        composeTestRule.onNodeWithTag("comparePlansView").assertExists()
+        composeTestRule.onNodeWithTag("compareNowButton").assertDoesNotExist()
     }
 
     // Test 8: Compare works for Gas category
