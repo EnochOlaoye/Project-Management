@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.example.solutions4u.model.UtilityBill
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,18 +41,18 @@ fun ProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    // The user's utility bills - starts with some sample data
+   // The user's utility bills - starts with some sample data
     var bills by remember {
-        mutableStateOf(
-            listOf(
-                UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-02"),
-                UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-03-28"),
-                UtilityBill(3, "Broadband", "Eir", 45.99, "2026-03-10"),
-                UtilityBill(4, "Mobile", "Three", 30.00, "2026-02-15"),
-                UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-01-01")
-            )
+     mutableStateOf(
+        listOf(
+            UtilityBill(1, "Electricity", "Electric Ireland", 85.50, "2026-04-21"),
+            UtilityBill(2, "Gas", "Bord Gais", 62.00, "2026-04-23"),
+            UtilityBill(3, "Broadband", "Eir", 45.99, "2026-04-28"),
+            UtilityBill(4, "Mobile", "Three", 30.00, "2026-05-10"),
+            UtilityBill(5, "Car Insurance", "AXA", 120.00, "2026-05-15")
         )
-    }
+    )
+}
     var nextId by remember { mutableIntStateOf(6) }
 
     // Controls for the "add a bill" dialog
@@ -58,6 +61,7 @@ fun ProfileScreen(
     var selectedCategory by remember { mutableStateOf("Electricity") }
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
+    var dueDateText by remember { mutableStateOf("") }
 
     var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
@@ -72,6 +76,20 @@ fun ProfileScreen(
         "Yearly" -> bills.filter { it.date.startsWith("2026") }
         else -> bills
     }
+
+    // Today's date for calculating days until due
+    val today = LocalDate.now()
+
+    // Bills due within the next 30 days
+    val upcomingBills = bills.filter { bill ->
+        try {
+            val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+            val daysUntil = ChronoUnit.DAYS.between(today, dueDate)
+            daysUntil in 0..30
+        } catch (e: Exception) {
+            false
+        }
+    }.sortedBy { it.date }
 
     Scaffold(
         topBar = {
@@ -126,6 +144,89 @@ fun ProfileScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Upcoming bills section - shows bills due in the next 30 days
+            if (upcomingBills.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("upcomingBillsSection"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Upcoming Charges",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Black
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        upcomingBills.forEach { bill ->
+                            // Calculate days until the bill is due
+                            val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+                            val daysUntil = ChronoUnit.DAYS.between(today, dueDate)
+                            val dueText = when {
+                                daysUntil == 0L -> "Due today!"
+                                daysUntil == 1L -> "Due tomorrow"
+                                daysUntil <= 7L -> "Due in $daysUntil days"
+                                else -> "Due on ${bill.date}"
+                            }
+                            // Highlight urgent bills in red
+                            val cardColor = when {
+                                daysUntil <= 3 -> Color(0xFFFFEBEE)
+                                daysUntil <= 7 -> Color(0xFFFFF3E0)
+                                else -> Color(0xFFF1F8E9)
+                            }
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .testTag("upcomingBill_${bill.id}"),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = cardColor)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = bill.category,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = Black
+                                        )
+                                        Text(
+                                            text = bill.provider,
+                                            fontSize = 12.sp,
+                                            color = DarkGray
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "€${"%.2f".format(bill.amount)}",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = Black
+                                        )
+                                        Text(
+                                            text = dueText,
+                                            fontSize = 11.sp,
+                                            color = if (daysUntil <= 3) Color.Red else DarkGray
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // Swipeable tabs
             // Time period tabs
@@ -288,23 +389,33 @@ fun ProfileScreen(
                         label = { Text("Amount (€)") },
                         singleLine = true
                     )
+                    // Due date field for tracking when the bill is charged
+                    OutlinedTextField(
+                        value = dueDateText,
+                        onValueChange = { dueDateText = it },
+                        label = { Text("Due Date (YYYY-MM-DD)") },
+                        singleLine = true,
+                        placeholder = { Text("e.g. 2026-05-01") }
+                    )
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         val amount = amountText.toDoubleOrNull()
+                        val date = if (dueDateText.isNotBlank()) dueDateText else "2026-04-02"
                         if (providerText.isNotBlank() && amount != null) {
                             bills = bills + UtilityBill(
                                 id = nextId,
                                 category = selectedCategory,
                                 provider = providerText,
                                 amount = amount,
-                                date = "2026-04-02"
+                                date = date
                             )
                             nextId++
                             providerText = ""
                             amountText = ""
+                            dueDateText = ""
                             selectedCategory = "Electricity"
                             showAddDialog = false
                         }
