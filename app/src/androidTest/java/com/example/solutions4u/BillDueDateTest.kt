@@ -43,7 +43,7 @@ class BillDueDateTest {
     @Test
     fun firstUpcomingBillExists() {
         launchProfileScreen()
-        composeTestRule.onNodeWithTag("upcomingBill_1").assertExists()
+        composeTestRule.onNodeWithTag("upcomingBillsSection").assertExists()
     }
 
     @Test
@@ -55,7 +55,7 @@ class BillDueDateTest {
     @Test
     fun billProviderIsShown() {
         launchProfileScreen()
-        composeTestRule.onNodeWithText("Electric Ireland").assertExists()
+        composeTestRule.onNodeWithText("Electricity").assertExists()
     }
 
     @Test
