@@ -17,4 +17,5 @@ object NavRoutes {
     const val FAQ = "faq"
     const val CONTACT = "contact"
     const val ABOUT = "about"
+    const val SEARCH = "search"
 }

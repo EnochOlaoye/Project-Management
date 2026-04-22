@@ -81,7 +81,8 @@ fun Solutions4UApp() {
                 onFaqClick = { navController.navigate(NavRoutes.FAQ) },
                 onContactClick = { navController.navigate(NavRoutes.CONTACT) },
                 onAboutClick = { navController.navigate(NavRoutes.ABOUT) },
-                activePropertyIcon = activePropertyIcon
+                activePropertyIcon = activePropertyIcon,
+                onSearchClick = { navController.navigate(NavRoutes.SEARCH) }
             )
         }
         composable(NavRoutes.ELECTRICITY) {
@@ -182,6 +183,13 @@ fun Solutions4UApp() {
 
         composable(NavRoutes.ABOUT) {
             AboutScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(NavRoutes.SEARCH) {
+            SearchScreen(
+                onBackClick = { navController.popBackStack() },
+                onCompanyClick = { route -> navController.navigate(route) }
+            )
         }
     }
 }

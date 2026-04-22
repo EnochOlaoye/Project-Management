@@ -29,6 +29,7 @@ import com.example.solutions4u.network.UserData
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 
 // The main landing page of the app.
 // Shows a top bar with navigation chips, a hero banner, category cards, news, and a footer.
@@ -46,7 +47,8 @@ fun HomeScreen(
     onFaqClick: () -> Unit = {},
     onContactClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
-    activePropertyIcon: String = "home"
+    activePropertyIcon: String = "home",
+    onSearchClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -54,89 +56,74 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    // Menu icon on the left side of the top bar
+    TopAppBar(
+        title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp)
+                    .background(topBarColor, shape = RoundedCornerShape(24.dp))
+                    .clickable { onSearchClick() }
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        Icons.Default.Menu,
-                        contentDescription = "Menu",
-                        tint = White,
-                        modifier = Modifier.padding(8.dp)
+                        Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(18.dp)
                     )
-                },
-                actions = {
-                    // Scrollable row of quick navigation chips and auth buttons
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Category shortcut chips
-                        val navItems = listOf("Electricity", "Gas", "Insurance", "Broadband", "Mobile", "News")
-                        items(navItems) { item ->
-                            AssistChip(
-                                onClick = { onCategoryClick(item.lowercase()) },
-                                label = { Text(item, fontSize = 11.sp, color = White) },
-                                colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.background),
-                                border = null
-                            )
-                        }
-
-                        // Show the user's name button if logged in, otherwise show Sign In and Register
-                        if (loggedInUser != null) {
-                            item {
-                                Button(
-                                    onClick = onProfileClick,
-                                    modifier = Modifier.height(32.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Text(loggedInUser.name, fontSize = 11.sp)
-                                }
-                            }
-                            item {
-                                Button(
-                                    onClick = onLogoutClick,
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .testTag("logoutButton"),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Text("Logout", fontSize = 11.sp)
-                                }
-                            }
-                        } else {
-                            item {
-                                OutlinedButton(
-                                    onClick = onSignInClick,
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .testTag("signInButton"),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Text("Sign In", fontSize = 11.sp, color = White)
-                                }
-                            }
-                            item {
-                                Button(
-                                    onClick = onRegisterClick,
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .testTag("registerButton"),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Text("Register", fontSize = 11.sp)
-                                }
-                            }
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = topBarColor)
-            )
-        }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Bord Gáis, Vodafone...",
+                        color = White.copy(alpha = 0.5f),
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        },
+        navigationIcon = { },
+        actions = {
+            if (loggedInUser != null) {
+                Button(
+                    onClick = onLogoutClick,
+                    modifier = Modifier
+                        .height(32.dp)
+                        .testTag("logoutButton"),
+                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                ) {
+                    Text("Logout", fontSize = 11.sp)
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+            } else {
+                OutlinedButton(
+                    onClick = onSignInClick,
+                    modifier = Modifier
+                        .height(32.dp)
+                        .testTag("signInButton"),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                ) {
+                    Text("Sign In", fontSize = 11.sp, color = White)
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Button(
+                    onClick = onRegisterClick,
+                    modifier = Modifier
+                        .height(32.dp)
+                        .testTag("registerButton"),
+                    colors = ButtonDefaults.buttonColors(containerColor = Red500),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                ) {
+                    Text("Register", fontSize = 11.sp)
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = topBarColor)
+    )
+},
     ) { paddingValues ->
         Column(
             modifier = Modifier
