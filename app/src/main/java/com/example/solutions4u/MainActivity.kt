@@ -58,18 +58,7 @@ fun Solutions4UApp() {
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
-                onCategoryClick = { route ->
-                    val index = when (route) {
-                        "electricity" -> 0
-                        "gas" -> 1
-                        "insurance" -> 2
-                        "broadband" -> 3
-                        "mobile" -> 4
-                        "news" -> 5
-                        else -> 0
-                    }
-                    navController.navigate("categories/$index")
-                },
+                onCategoryClick = { route -> navController.navigate(route) },
                 onSignInClick = { navController.navigate(NavRoutes.SIGN_IN) },
                 onRegisterClick = { navController.navigate(NavRoutes.REGISTER) },
                 loggedInUser = loggedInUser,
