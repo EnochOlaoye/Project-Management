@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -80,6 +82,68 @@ fun CategoryScreen(
     var showCompare by remember { mutableStateOf(false) }
     val plans = remember { getSamplePlans(categoryName) }
 
+    // Keeps track of which plans the user has saved for later
+    var savedPlans by remember { mutableStateOf<List<Plan>>(emptyList()) }
+
+    // Controls whether the saved plans dialog is shown
+    var showSavedDialog by remember { mutableStateOf(false) }
+
+    // Saved plans dialog - shows all plans the user has saved
+    if (showSavedDialog) {
+        AlertDialog(
+            onDismissRequest = { showSavedDialog = false },
+            title = {
+                Text(
+                    text = "Saved Plans",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                if (savedPlans.isEmpty()) {
+                    Text("No plans saved yet. Tap the ❤️ on any plan to save it.")
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(savedPlans) { plan ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Green600)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text(
+                                        text = plan.provider,
+                                        fontWeight = FontWeight.Bold,
+                                        color = White,
+                                        fontSize = 15.sp
+                                    )
+                                    Text(
+                                        text = plan.planName,
+                                        color = White.copy(alpha = 0.9f),
+                                        fontSize = 13.sp
+                                    )
+                                    Text(
+                                        text = "€${"%.2f".format(plan.pricePerMonth)}/month",
+                                        fontWeight = FontWeight.Bold,
+                                        color = White,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                OutlinedButton(onClick = { showSavedDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -91,6 +155,32 @@ fun CategoryScreen(
                             contentDescription = "Back",
                             tint = White
                         )
+                    }
+                },
+                actions = {
+                    // Show saved count badge if any plans are saved
+                    if (savedPlans.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .testTag("savedCountBadge")
+                        ) {
+                            IconButton(onClick = { showSavedDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = "View Saved Plans",
+                                    tint = White
+                                )
+                            }
+                            Badge(
+                                modifier = Modifier.align(Alignment.TopEnd)
+                            ) {
+                                Text(
+                                    text = savedPlans.size.toString(),
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background.darken())
@@ -126,11 +216,37 @@ fun CategoryScreen(
 
                 // Show each plan as a card
                 items(plans) { plan ->
-                    PlanCard(plan = plan)
+                    PlanCard(
+                        plan = plan,
+                        isSaved = savedPlans.any { it.provider == plan.provider && it.planName == plan.planName },
+                        onSaveClick = {
+                            // Toggle save - add if not saved, remove if already saved
+                            savedPlans = if (savedPlans.any { it.provider == plan.provider && it.planName == plan.planName }) {
+                                savedPlans.filter { it.provider != plan.provider || it.planName != plan.planName }
+                            } else {
+                                savedPlans + plan
+                            }
+                        }
+                    )
                 }
 
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // View saved plans button
+                    if (savedPlans.isNotEmpty()) {
+                        Button(
+                            onClick = { showSavedDialog = true },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("viewSavedButton"),
+                            colors = ButtonDefaults.buttonColors(containerColor = Red500)
+                        ) {
+                            Text("View Saved Plans (${savedPlans.size})", color = White)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
                     // Button to go back to the category screen
                     OutlinedButton(
                         onClick = { showCompare = false },
@@ -184,7 +300,11 @@ fun CategoryScreen(
 
 // A single plan card showing provider, price, features and current plan badge
 @Composable
-fun PlanCard(plan: Plan) {
+fun PlanCard(
+    plan: Plan,
+    isSaved: Boolean = false,
+    onSaveClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -208,17 +328,31 @@ fun PlanCard(plan: Plan) {
                     fontWeight = FontWeight.Bold,
                     color = if (plan.isCurrent) White else Black
                 )
-                // Show "Current Plan" badge if this is the user's plan
-                if (plan.isCurrent) {
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = White.copy(alpha = 0.2f)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Show "Current Plan" badge if this is the user's plan
+                    if (plan.isCurrent) {
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = White.copy(alpha = 0.2f)
+                        ) {
+                            Text(
+                                text = "Current Plan",
+                                fontSize = 11.sp,
+                                color = White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    // Save for later button - toggles heart icon
+                    IconButton(
+                        onClick = onSaveClick,
+                        modifier = Modifier.testTag("saveButton_${plan.provider}")
                     ) {
-                        Text(
-                            text = "Current Plan",
-                            fontSize = 11.sp,
-                            color = White,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        Icon(
+                            imageVector = if (isSaved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isSaved) "Saved" else "Save for later",
+                            tint = if (plan.isCurrent) White else Red500
                         )
                     }
                 }

@@ -13,7 +13,7 @@ class SettingsTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    // Launches the settings screen for testing
+    // Helper to launch SettingsScreen
     private fun launchSettingsScreen() {
         composeTestRule.setContent {
             Solutions4UTheme {
@@ -23,15 +23,14 @@ class SettingsTest {
                     userEmail = "test@test.com",
                     onBackClick = {},
                     onAccountDeleted = {},
-                    onLogout = {},
-                    onIconChanged = {}
+                    onLogout = {}
                 )
             }
         }
         composeTestRule.waitForIdle()
     }
 
-    // Launches the profile screen for testing
+    // Helper to launch ProfileScreen
     private fun launchProfileScreen() {
         composeTestRule.setContent {
             Solutions4UTheme {
@@ -68,7 +67,7 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Change Login Info").assertExists()
     }
 
-    // Test 4: Change Login Info dialog opens when button clicked
+    // Test 4: Change Login Info button can be clicked and dialog appears
     @Test
     fun changeLoginInfoDialogOpens() {
         launchSettingsScreen()
@@ -84,7 +83,7 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Add").assertExists()
     }
 
-    // Test 6: Add property dialog opens when button clicked
+    // Test 6: Add property button can be clicked and dialog appears
     @Test
     fun addPropertyDialogOpens() {
         launchSettingsScreen()
@@ -100,7 +99,7 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Delete").assertExists()
     }
 
-    // Test 8: Delete property dialog opens when button clicked
+    // Test 8: Delete property button can be clicked
     @Test
     fun deletePropertyDialogOpens() {
         launchSettingsScreen()
@@ -120,16 +119,16 @@ class SettingsTest {
    @Test
    fun deleteAccountButtonExists() {
        launchSettingsScreen()
-       composeTestRule.onNodeWithTag("deleteAccountButton").assertExists()
+       composeTestRule.onNodeWithText("Delete Account").assertExists()
     }
 
-   // Test 11: Delete Account dialog opens when button clicked
-   @Test
-   fun deleteAccountDialogOpens() {
-       launchSettingsScreen()
-       composeTestRule.onNodeWithTag("deleteAccountButton").performClick()
-       composeTestRule.waitForIdle()
-       composeTestRule.onNodeWithText("Are you sure you want to delete your account? This cannot be undone.").assertExists()
+    // Test 11: Delete Account button can be clicked and confirmation dialog appears
+    @Test
+    fun deleteAccountDialogOpens() {
+        launchSettingsScreen()
+        composeTestRule.onNodeWithText("Delete Account").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Are you sure you want to delete your account? This cannot be undone.").assertExists()
     }
 
     // Test 12: Theme button exists
@@ -139,7 +138,7 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Theme").assertExists()
     }
 
-    // Test 13: Theme dialog opens when button clicked
+    // Test 13: Theme button can be clicked and dialog opens
     @Test
     fun themeDialogOpens() {
         launchSettingsScreen()
@@ -155,7 +154,7 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Logout").assertExists()
     }
 
-    // Test 15: Logout button triggers logout when clicked
+    // Test 15: Logout button can be clicked
     @Test
     fun logoutButtonCanBeClicked() {
         var loggedOut = false
@@ -167,8 +166,7 @@ class SettingsTest {
                     userEmail = "test@test.com",
                     onBackClick = {},
                     onAccountDeleted = {},
-                    onLogout = { loggedOut = true },
-                    onIconChanged = {}
+                    onLogout = { loggedOut = true }
                 )
             }
         }
