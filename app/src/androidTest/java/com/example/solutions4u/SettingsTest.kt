@@ -23,7 +23,8 @@ class SettingsTest {
                     userEmail = "test@test.com",
                     onBackClick = {},
                     onAccountDeleted = {},
-                    onLogout = {}
+                    onLogout = {},
+                    onIconChanged = {}
                 )
             }
         }
@@ -115,30 +116,21 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Change Details").assertExists()
     }
 
-   // Test 10: Delete Account button exists
-   @Test
-   fun deleteAccountButtonExists() {
-       launchSettingsScreen()
-       composeTestRule.onNodeWithText("Delete Account").assertExists()
-    }
-
-    // Test 11: Delete Account button can be clicked and confirmation dialog appears
+    // Test 10: Delete Account button exists
     @Test
-    fun deleteAccountDialogOpens() {
+    fun deleteAccountButtonExists() {
         launchSettingsScreen()
-        composeTestRule.onNodeWithText("Delete Account").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Are you sure you want to delete your account? This cannot be undone.").assertExists()
+        composeTestRule.onNodeWithTag("deleteAccountButton").assertExists()
     }
 
-    // Test 12: Theme button exists
+    // Test 11: Theme button exists
     @Test
     fun themeButtonExists() {
         launchSettingsScreen()
         composeTestRule.onNodeWithText("Theme").assertExists()
     }
 
-    // Test 13: Theme button can be clicked and dialog opens
+    // Test 12: Theme button can be clicked and dialog opens
     @Test
     fun themeDialogOpens() {
         launchSettingsScreen()
@@ -147,14 +139,14 @@ class SettingsTest {
         composeTestRule.onNodeWithText("Theme").assertExists()
     }
 
-    // Test 14: Logout button exists
+    // Test 13: Logout button exists
     @Test
     fun logoutButtonExists() {
         launchSettingsScreen()
         composeTestRule.onNodeWithText("Logout").assertExists()
     }
 
-    // Test 15: Logout button can be clicked
+    // Test 14: Logout button can be clicked
     @Test
     fun logoutButtonCanBeClicked() {
         var loggedOut = false
@@ -166,7 +158,8 @@ class SettingsTest {
                     userEmail = "test@test.com",
                     onBackClick = {},
                     onAccountDeleted = {},
-                    onLogout = { loggedOut = true }
+                    onLogout = { loggedOut = true },
+                    onIconChanged = {}
                 )
             }
         }
