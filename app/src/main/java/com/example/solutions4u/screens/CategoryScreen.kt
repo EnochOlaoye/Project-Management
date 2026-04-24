@@ -19,6 +19,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.testTag
 import com.example.solutions4u.ui.theme.*
 import com.example.solutions4u.ui.theme.darken
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Notifications
+import com.example.solutions4u.ui.theme.ThemeManager
+import com.example.solutions4u.utils.NotificationHelper
+import kotlinx.coroutines.launch
 
 // Data class representing a single provider plan
 data class Plan(
@@ -27,7 +32,10 @@ data class Plan(
     val pricePerMonth: Double,
     val features: String,
     val isCurrent: Boolean = false
-)
+) {
+    // Unique key used for tracking and persistence
+    val key: String get() = "${provider}_${planName}".replace(" ", "_")
+}
 
 // Sample plans for each category
 fun getSamplePlans(categoryName: String): List<Plan> {
@@ -87,6 +95,17 @@ fun CategoryScreen(
 
     // Controls whether the saved plans dialog is shown
     var showSavedDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    
+    // Load tracked plans from DataStore
+    val trackedPlanKeys by ThemeManager.getTrackedPlans(context)
+        .collectAsState(initial = emptySet())
+
+    // Read price alerts setting
+    val priceAlertsEnabled by ThemeManager.getPriceAlertsEnabled(context)
+        .collectAsState(initial = false)
 
     // Saved plans dialog - shows all plans the user has saved
     if (showSavedDialog) {
@@ -220,11 +239,32 @@ fun CategoryScreen(
                         plan = plan,
                         isSaved = savedPlans.any { it.provider == plan.provider && it.planName == plan.planName },
                         onSaveClick = {
-                            // Toggle save - add if not saved, remove if already saved
                             savedPlans = if (savedPlans.any { it.provider == plan.provider && it.planName == plan.planName }) {
                                 savedPlans.filter { it.provider != plan.provider || it.planName != plan.planName }
                             } else {
                                 savedPlans + plan
+                            }
+                        },
+                        isTracked = trackedPlanKeys.contains(plan.key),
+                        onTrackClick = {
+                            scope.launch {
+                                val newTracked = if (trackedPlanKeys.contains(plan.key)) {
+                                    trackedPlanKeys - plan.key
+                                } else {
+                                    trackedPlanKeys + plan.key
+                                }
+                                ThemeManager.saveTrackedPlans(context, newTracked)
+
+                                // Simulate a price drop notification when tracking is enabled
+                                if (!trackedPlanKeys.contains(plan.key) && priceAlertsEnabled) {
+                                    NotificationHelper.sendPriceDropNotification(
+                                        context = context,
+                                        provider = plan.provider,
+                                        planName = plan.planName,
+                                        oldPrice = plan.pricePerMonth,
+                                        newPrice = plan.pricePerMonth * 0.9 // Simulated 10% drop
+                                    )
+                                }
                             }
                         }
                     )
@@ -303,7 +343,9 @@ fun CategoryScreen(
 fun PlanCard(
     plan: Plan,
     isSaved: Boolean = false,
-    onSaveClick: () -> Unit = {}
+    onSaveClick: () -> Unit = {},
+    isTracked: Boolean = false,
+    onTrackClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -343,6 +385,17 @@ fun PlanCard(
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    // Bell icon for price tracking
+                    IconButton(
+                        onClick = onTrackClick,
+                        modifier = Modifier.testTag("trackButton_${plan.provider}")
+                    ) {
+                        Icon(
+                            imageVector = if (isTracked) Icons.Default.Notifications else Icons.Default.Notifications,
+                            contentDescription = if (isTracked) "Tracking price" else "Track price",
+                            tint = if (plan.isCurrent) White else Green600
+                        )
                     }
                     // Save for later button - toggles heart icon
                     IconButton(
