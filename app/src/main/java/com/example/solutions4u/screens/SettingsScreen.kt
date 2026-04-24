@@ -390,10 +390,17 @@ private fun EditLoginInfoDialog(
 private fun NotificationSettingsDialog(
     onDismiss: () -> Unit
 ) {
-    var notificationsEnabled by remember { mutableStateOf(false) }
-    var priceAlerts by remember { mutableStateOf(false) }
-    var dueDates by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
+    // Read saved values from DataStore
+    val notificationsEnabled by ThemeManager.getNotificationsEnabled(context)
+        .collectAsState(initial = false)
+    val dueDatesEnabled by ThemeManager.getDueDatesEnabled(context)
+        .collectAsState(initial = false)
+    val priceAlertsEnabled by ThemeManager.getPriceAlertsEnabled(context)
+    .collectAsState(initial = false)
+    
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Notification Settings", fontWeight = FontWeight.Bold) },
@@ -414,11 +421,12 @@ private fun NotificationSettingsDialog(
                     )
                     Switch(
                         checked = notificationsEnabled,
-                        onCheckedChange = {
-                            notificationsEnabled = it
-                            if (!it) {
-                                priceAlerts = false
-                                dueDates = false
+                        onCheckedChange = { enabled ->
+                            scope.launch {
+                                ThemeManager.saveNotificationsEnabled(context, enabled)
+                                if (!enabled) {
+                                    ThemeManager.saveDueDatesEnabled(context, false)
+                                }
                             }
                         },
                         colors = SwitchDefaults.colors(
@@ -432,12 +440,7 @@ private fun NotificationSettingsDialog(
 
                 // Price Alerts toggle
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (!notificationsEnabled)
-                                Modifier else Modifier
-                        ),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -454,8 +457,14 @@ private fun NotificationSettingsDialog(
                         )
                     }
                     Switch(
-                        checked = priceAlerts,
-                        onCheckedChange = { if (notificationsEnabled) priceAlerts = it },
+                        checked = priceAlertsEnabled,
+                        onCheckedChange = { enabled ->
+                            if (notificationsEnabled) {
+                                scope.launch {
+                                    ThemeManager.savePriceAlertsEnabled(context, enabled)
+                                }
+                            }
+                        },
                         enabled = notificationsEnabled,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = White,
@@ -487,8 +496,14 @@ private fun NotificationSettingsDialog(
                         )
                     }
                     Switch(
-                        checked = dueDates,
-                        onCheckedChange = { if (notificationsEnabled) dueDates = it },
+                        checked = dueDatesEnabled,
+                        onCheckedChange = { enabled ->
+                            if (notificationsEnabled) {
+                                scope.launch {
+                                    ThemeManager.saveDueDatesEnabled(context, enabled)
+                                }
+                            }
+                        },
                         enabled = notificationsEnabled,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = White,

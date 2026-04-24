@@ -29,6 +29,8 @@ import com.example.solutions4u.ui.theme.darken
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import com.example.solutions4u.utils.NotificationHelper
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +92,53 @@ fun ProfileScreen(
             false
         }
     }.sortedBy { it.date }
+
+    val context = LocalContext.current
+
+    // Check for bills due tomorrow and send notifications
+    LaunchedEffect(bills) {
+        val tomorrow = today.plusDays(1)
+        bills.forEach { bill ->
+            try {
+                val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+                if (dueDate == tomorrow) {
+                    NotificationHelper.sendBillDueTomorrowNotification(
+                        context = context,
+                        category = bill.category,
+                        provider = bill.provider,
+                        amount = bill.amount
+                    )
+                }
+            } catch (e: Exception) {
+                // Invalid date format, skip
+            }
+        }
+    }
+
+    // Read due dates setting from DataStore
+    val dueDatesEnabled by ThemeManager.getDueDatesEnabled(context)
+        .collectAsState(initial = false)
+
+    // Check for bills due tomorrow and send notifications only if enabled
+    LaunchedEffect(bills, dueDatesEnabled) {
+        if (!dueDatesEnabled) return@LaunchedEffect
+        val tomorrow = today.plusDays(1)
+        bills.forEach { bill ->
+            try {
+                val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+                if (dueDate == tomorrow) {
+                    NotificationHelper.sendBillDueTomorrowNotification(
+                        context = context,
+                        category = bill.category,
+                        provider = bill.provider,
+                        amount = bill.amount
+                    )
+                }
+            } catch (e: Exception) {
+                // Invalid date format, skip
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

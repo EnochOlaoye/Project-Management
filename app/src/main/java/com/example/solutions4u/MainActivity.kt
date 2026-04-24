@@ -20,6 +20,11 @@ import com.example.solutions4u.ui.theme.ThemeManager
 import kotlinx.coroutines.launch
 import com.example.solutions4u.network.PropertyRepository
 import com.example.solutions4u.network.PropertyResult
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.solutions4u.utils.NotificationHelper
 
 // The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
@@ -55,6 +60,18 @@ fun Solutions4UApp() {
     }
     var activePropertyIcon by remember { mutableStateOf("home") }
     
+    // Request notification permission on Android 13+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    LaunchedEffect(Unit) {
+        NotificationHelper.createNotificationChannel(context)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
