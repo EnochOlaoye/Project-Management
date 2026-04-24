@@ -84,7 +84,8 @@ fun getSamplePlans(categoryName: String): List<Plan> {
 @Composable
 fun CategoryScreen(
     categoryName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isLoggedIn: Boolean = false
 ) {
     // Controls whether the compare view is shown
     var showCompare by remember { mutableStateOf(true) }
@@ -236,7 +237,7 @@ fun CategoryScreen(
                 // Show each plan as a card
                 items(plans) { plan ->
                     PlanCard(
-                        plan = plan,
+                        plan = plan.copy(isCurrent = if (isLoggedIn) plan.isCurrent else false),
                         isSaved = savedPlans.any { it.provider == plan.provider && it.planName == plan.planName },
                         onSaveClick = {
                             savedPlans = if (savedPlans.any { it.provider == plan.provider && it.planName == plan.planName }) {
