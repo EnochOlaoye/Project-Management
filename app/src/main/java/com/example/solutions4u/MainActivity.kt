@@ -20,6 +20,11 @@ import com.example.solutions4u.ui.theme.ThemeManager
 import kotlinx.coroutines.launch
 import com.example.solutions4u.network.PropertyRepository
 import com.example.solutions4u.network.PropertyResult
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.solutions4u.utils.NotificationHelper
 
 // The main entry point of the app. This is what Android launches first.
 class MainActivity : ComponentActivity() {
@@ -55,9 +60,22 @@ fun Solutions4UApp() {
     }
     var activePropertyIcon by remember { mutableStateOf("home") }
     
+    // Request notification permission on Android 13+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    LaunchedEffect(Unit) {
+        NotificationHelper.createNotificationChannel(context)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
+                onReviewsClick = { navController.navigate(NavRoutes.REVIEWS) },
                 onCategoryClick = { route -> navController.navigate(route) },
                 onSignInClick = { navController.navigate(NavRoutes.SIGN_IN) },
                 onRegisterClick = { navController.navigate(NavRoutes.REGISTER) },
@@ -86,22 +104,22 @@ fun Solutions4UApp() {
             )
         }
         composable(NavRoutes.ELECTRICITY) {
-            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.GAS) {
-            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.INSURANCE) {
-            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.BROADBAND) {
-            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.MOBILE) {
-            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.NEWS) {
-            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
 
         composable(NavRoutes.SIGN_IN) {
@@ -145,7 +163,8 @@ fun Solutions4UApp() {
                 userName = backStackEntry.arguments?.getString("name") ?: "",
                 userEmail = backStackEntry.arguments?.getString("email") ?: "",
                 onBackClick = { navController.popBackStack() },
-                onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") }
+                onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") },
+                 onReportsClick = { navController.navigate(NavRoutes.REPORTS) }
             )
         }
 
@@ -190,6 +209,14 @@ fun Solutions4UApp() {
                 onBackClick = { navController.popBackStack() },
                 onCompanyClick = { route -> navController.navigate(route) }
             )
+        }
+
+        composable(NavRoutes.REVIEWS) {
+            ReviewsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(NavRoutes.REPORTS) {
+            ReportsScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }

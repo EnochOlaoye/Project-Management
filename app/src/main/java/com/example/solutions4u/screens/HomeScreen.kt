@@ -48,7 +48,8 @@ fun HomeScreen(
     onContactClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     activePropertyIcon: String = "home",
-    onSearchClick: () -> Unit = {}
+    onSearchClick: () -> Unit = {},
+    onReviewsClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val bgColor = MaterialTheme.colorScheme.background
@@ -133,12 +134,11 @@ fun HomeScreen(
         ) {
             HeroSection(bgColor = bgColor, loggedInUser = loggedInUser, onProfileClick = onProfileClick, activePropertyIcon = activePropertyIcon)
             CategoryCardsSection(onCategoryClick = onCategoryClick, bgColor = bgColor)
-            NewsSection(bgColor = bgColor)
+            NewsSection(bgColor = bgColor, onReviewsClick = onReviewsClick)
             FooterSection(
                 onFaqClick = onFaqClick,
                 onContactClick = onContactClick,
-                onAboutClick = onAboutClick,
-                onDashboardClick = onDashboardClick
+                onAboutClick = onAboutClick
             )
         }
     }
@@ -309,7 +309,7 @@ fun CategoryCard(
 
 // The news section on the home page showing the latest articles
 @Composable
-fun NewsSection(bgColor: Color) {
+fun NewsSection(bgColor: Color, onReviewsClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -329,7 +329,7 @@ fun NewsSection(bgColor: Color) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
         newsItems.forEach { newsItem ->
-            NewsCard(newsItem = newsItem)
+            NewsCard(newsItem = newsItem, onReviewsClick = onReviewsClick)
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
@@ -337,7 +337,7 @@ fun NewsSection(bgColor: Color) {
 
 // A single news article card with a thumbnail, title, description, and a link button
 @Composable
-fun NewsCard(newsItem: NewsItem) {
+fun NewsCard(newsItem: NewsItem, onReviewsClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -362,6 +362,7 @@ fun NewsCard(newsItem: NewsItem) {
                         text = when (newsItem.category) {
                             "Electricity" -> "\u26A1"
                             "Insurance" -> "\uD83D\uDE97"
+                            "Company" -> "\u2B50"
                             else -> "\uD83D\uDCF0"
                         },
                         fontSize = 28.sp
@@ -387,13 +388,17 @@ fun NewsCard(newsItem: NewsItem) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = {
+                        if (newsItem.category == "Company") {
+                            onReviewsClick()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = White),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
-                        text = "Take me to article",
+                        text = if (newsItem.category == "Company") "View Reviews" else "Take me to article",
                         fontSize = 11.sp,
                         color = Black
                     )
@@ -408,8 +413,7 @@ fun NewsCard(newsItem: NewsItem) {
 fun FooterSection(
     onFaqClick: () -> Unit,
     onContactClick: () -> Unit,
-    onAboutClick: () -> Unit,
-    onDashboardClick: () -> Unit
+    onAboutClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -442,19 +446,6 @@ fun FooterSection(
             ) {
                 Text("About", color = White, fontWeight = FontWeight.Bold)
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Dashboard button to view expenditure without logging in
-        Button(
-            onClick = onDashboardClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("viewDashboardButton"),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken())
-        ) {
-            Text("View Dashboard", color = White, fontSize = 16.sp)
         }
     }
 }

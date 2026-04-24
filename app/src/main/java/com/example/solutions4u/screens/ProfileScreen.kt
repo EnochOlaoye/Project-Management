@@ -29,6 +29,13 @@ import com.example.solutions4u.ui.theme.darken
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import com.example.solutions4u.utils.NotificationHelper
+import androidx.compose.ui.platform.LocalContext
+import android.print.PrintManager
+import android.content.Context
+import androidx.core.content.ContextCompat
+import com.example.solutions4u.utils.PdfReportGenerator
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +44,8 @@ fun ProfileScreen(
     userName: String,
     userEmail: String,
     onBackClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onReportsClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -62,6 +70,8 @@ fun ProfileScreen(
     var providerText by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
     var dueDateText by remember { mutableStateOf("") }
+    var showPrintDialog by remember { mutableStateOf(false) }
+    var selectedPrintPeriod by remember { mutableStateOf("Monthly") }
 
     var selectedPeriod by remember { mutableStateOf("Monthly") }
     val periods = listOf("Daily", "Weekly", "Monthly", "Yearly")
@@ -91,6 +101,122 @@ fun ProfileScreen(
         }
     }.sortedBy { it.date }
 
+    val context = LocalContext.current
+
+    // Check for bills due tomorrow and send notifications
+    LaunchedEffect(bills) {
+        val tomorrow = today.plusDays(1)
+        bills.forEach { bill ->
+            try {
+                val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+                if (dueDate == tomorrow) {
+                    NotificationHelper.sendBillDueTomorrowNotification(
+                        context = context,
+                        category = bill.category,
+                        provider = bill.provider,
+                        amount = bill.amount
+                    )
+                }
+            } catch (e: Exception) {
+                // Invalid date format, skip
+            }
+        }
+    }
+
+    // Read due dates setting from DataStore
+    val dueDatesEnabled by ThemeManager.getDueDatesEnabled(context)
+        .collectAsState(initial = false)
+
+    // Check for bills due tomorrow and send notifications only if enabled
+    LaunchedEffect(bills, dueDatesEnabled) {
+        if (!dueDatesEnabled) return@LaunchedEffect
+        val tomorrow = today.plusDays(1)
+        bills.forEach { bill ->
+            try {
+                val dueDate = LocalDate.parse(bill.date, DateTimeFormatter.ISO_LOCAL_DATE)
+                if (dueDate == tomorrow) {
+                    NotificationHelper.sendBillDueTomorrowNotification(
+                        context = context,
+                        category = bill.category,
+                        provider = bill.provider,
+                        amount = bill.amount
+                    )
+                }
+            } catch (e: Exception) {
+                // Invalid date format, skip
+            }
+        }
+    }
+
+    // Print dialog
+    if (showPrintDialog) {
+        AlertDialog(
+            onDismissRequest = { showPrintDialog = false },
+            title = { Text("Print Report", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Select period to print:", fontSize = 14.sp, color = DarkGray)
+                    periods.forEach { period ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedPrintPeriod = period }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            RadioButton(
+                                selected = selectedPrintPeriod == period,
+                                onClick = { selectedPrintPeriod = period },
+                                colors = RadioButtonDefaults.colors(selectedColor = Green600)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = period, fontSize = 15.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showPrintDialog = false
+                        // Get bills for selected period
+                        val printBills = when (selectedPrintPeriod) {
+                            "Daily" -> bills.filter { it.date == "2026-04-21" }
+                            "Weekly" -> bills.filter { it.date >= "2026-04-15" }
+                            "Monthly" -> bills.filter { it.date.startsWith("2026-04") || it.date.startsWith("2026-05") }
+                            "Yearly" -> bills.filter { it.date.startsWith("2026") }
+                            else -> bills
+                        }
+                        // Generate PDF
+                        val file = PdfReportGenerator.generateReport(context, selectedPrintPeriod, printBills)
+                        if (file != null) {
+                            // Open print dialog
+                            val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+                            val jobName = "Solutions4U_$selectedPrintPeriod"
+                            val fileUri = androidx.core.content.FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                file
+                            )
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                                setDataAndType(fileUri, "application/pdf")
+                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(intent)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Green600)
+                ) {
+                    Text("Generate & Open", color = White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showPrintDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -305,7 +431,29 @@ fun ProfileScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showPrintDialog = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Print / Save PDF", color = White, fontSize = 13.sp)
+                }
+                Button(
+                    onClick = { onReportsClick() },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken()),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Previous Reports", color = White, fontSize = 13.sp)
+                }
+            }
             Spacer(modifier = Modifier.height(80.dp))
         }
     }
