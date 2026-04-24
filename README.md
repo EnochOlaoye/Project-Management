@@ -142,7 +142,4 @@ All 73 tests should pass.
 
 73 automated instrumented UI tests written across 11 test files covering all user stories.
 
-
-```
-
 Create a `.env` file in the backend folder with these contents:
