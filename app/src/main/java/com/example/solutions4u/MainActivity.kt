@@ -163,7 +163,8 @@ fun Solutions4UApp() {
                 userName = backStackEntry.arguments?.getString("name") ?: "",
                 userEmail = backStackEntry.arguments?.getString("email") ?: "",
                 onBackClick = { navController.popBackStack() },
-                onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") }
+                onSettingsClick = { navController.navigate("settings/${backStackEntry.arguments?.getString("id")}") },
+                 onReportsClick = { navController.navigate(NavRoutes.REPORTS) }
             )
         }
 
@@ -212,6 +213,10 @@ fun Solutions4UApp() {
 
         composable(NavRoutes.REVIEWS) {
             ReviewsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(NavRoutes.REPORTS) {
+            ReportsScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }
