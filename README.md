@@ -111,8 +111,6 @@ adb shell am start -n com.example.solutions4u/.MainActivity
 
 All 73 tests should pass.
 
----
-
 ## Daily Startup Checklist
 
 - [ ] Open XAMPP and start Apache and MySQL (both green)
@@ -122,8 +120,6 @@ All 73 tests should pass.
 - [ ] Wait for emulator to fully boot to home screen
 - [ ] Run `.\gradlew.bat installDebug`
 - [ ] Run `adb reverse tcp:3000 tcp:3000`
-
----
 
 ## Troubleshooting
 
@@ -135,8 +131,6 @@ All 73 tests should pass.
 | Emulator offline | Run `adb kill-server` then `adb start-server` |
 | Emulator frozen | Device Manager → 3 dots → Wipe Data → Cold Boot Now |
 | Running scripts disabled | Run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
-
----
 
 ## Tests
 
