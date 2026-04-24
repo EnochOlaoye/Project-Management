@@ -449,18 +449,5 @@ fun FooterSection(
                 Text("About", color = White, fontWeight = FontWeight.Bold)
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Dashboard button to view expenditure without logging in
-        Button(
-            onClick = onDashboardClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("viewDashboardButton"),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background.darken())
-        ) {
-            Text("View Dashboard", color = White, fontSize = 16.sp)
-        }
     }
 }
