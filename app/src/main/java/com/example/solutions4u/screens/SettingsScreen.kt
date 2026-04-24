@@ -386,6 +386,131 @@ private fun EditLoginInfoDialog(
     )
 }
 
+@Composable
+private fun NotificationSettingsDialog(
+    onDismiss: () -> Unit
+) {
+    var notificationsEnabled by remember { mutableStateOf(false) }
+    var priceAlerts by remember { mutableStateOf(false) }
+    var dueDates by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Notification Settings", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                // Master toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Enable Notifications",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = Color.Black
+                    )
+                    Switch(
+                        checked = notificationsEnabled,
+                        onCheckedChange = {
+                            notificationsEnabled = it
+                            if (!it) {
+                                priceAlerts = false
+                                dueDates = false
+                            }
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = White,
+                            checkedTrackColor = Green600
+                        )
+                    )
+                }
+
+                Divider()
+
+                // Price Alerts toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (!notificationsEnabled)
+                                Modifier else Modifier
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Price Alerts",
+                            fontSize = 15.sp,
+                            color = if (notificationsEnabled) Color.Black else Color.Gray
+                        )
+                        Text(
+                            text = "Get notified when better deals are available",
+                            fontSize = 12.sp,
+                            color = if (notificationsEnabled) DarkGray else Color.Gray
+                        )
+                    }
+                    Switch(
+                        checked = priceAlerts,
+                        onCheckedChange = { if (notificationsEnabled) priceAlerts = it },
+                        enabled = notificationsEnabled,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = White,
+                            checkedTrackColor = Green600,
+                            disabledCheckedTrackColor = Color.LightGray,
+                            disabledUncheckedTrackColor = Color.LightGray
+                        )
+                    )
+                }
+
+                Divider()
+
+                // Due Dates toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Due Dates",
+                            fontSize = 15.sp,
+                            color = if (notificationsEnabled) Color.Black else Color.Gray
+                        )
+                        Text(
+                            text = "Reminders when bills are due",
+                            fontSize = 12.sp,
+                            color = if (notificationsEnabled) DarkGray else Color.Gray
+                        )
+                    }
+                    Switch(
+                        checked = dueDates,
+                        onCheckedChange = { if (notificationsEnabled) dueDates = it },
+                        enabled = notificationsEnabled,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = White,
+                            checkedTrackColor = Green600,
+                            disabledCheckedTrackColor = Color.LightGray,
+                            disabledUncheckedTrackColor = Color.LightGray
+                        )
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Done", color = White, fontWeight = FontWeight.Bold)
+            }
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -407,6 +532,7 @@ fun SettingsScreen(
     val bgColor = MaterialTheme.colorScheme.background
     val topBarColor = bgColor.darken()
 
+    var showNotificationSettings by remember { mutableStateOf(false) }
     var showAddProperty    by remember { mutableStateOf(false) }
     var showEditProperty by remember { mutableStateOf(false) }
     var showSwitchProperty by remember { mutableStateOf(false) }
@@ -452,6 +578,13 @@ fun SettingsScreen(
                 }
                 showThemeDialog = false
             }
+        )
+    }
+
+    // Notification settings dialog
+    if (showNotificationSettings) {
+        NotificationSettingsDialog(
+            onDismiss = { showNotificationSettings = false }
         )
     }
 
@@ -807,6 +940,22 @@ fun SettingsScreen(
                     ) {
                         Text(
                             "Theme",
+                            color = White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    //Notification button
+                    Button(
+                        onClick = { showNotificationSettings = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = topBarColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "Notifications",
                             color = White,
                             fontWeight = FontWeight.Bold
                         )
