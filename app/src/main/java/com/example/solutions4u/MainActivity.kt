@@ -104,22 +104,22 @@ fun Solutions4UApp() {
             )
         }
         composable(NavRoutes.ELECTRICITY) {
-            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Electricity", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.GAS) {
-            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Gas", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.INSURANCE) {
-            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Car Insurance", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.BROADBAND) {
-            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Broadband", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.MOBILE) {
-            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "Mobile", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
         composable(NavRoutes.NEWS) {
-            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() })
+            CategoryScreen(categoryName = "News", onBackClick = { navController.popBackStack() }, isLoggedIn = loggedInUser != null)
         }
 
         composable(NavRoutes.SIGN_IN) {
