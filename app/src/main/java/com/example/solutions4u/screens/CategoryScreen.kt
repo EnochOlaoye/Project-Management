@@ -87,7 +87,7 @@ fun CategoryScreen(
     onBackClick: () -> Unit
 ) {
     // Controls whether the compare view is shown
-    var showCompare by remember { mutableStateOf(false) }
+    var showCompare by remember { mutableStateOf(true) }
     val plans = remember { getSamplePlans(categoryName) }
 
     // Keeps track of which plans the user has saved for later
@@ -296,42 +296,6 @@ fun CategoryScreen(
                     ) {
                         Text("Back", color = White)
                     }
-                }
-            }
-        } else {
-            // Default category view
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = categoryName,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = White
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Compare $categoryName providers and find the best deals.",
-                    fontSize = 16.sp,
-                    color = White.copy(alpha = 0.9f)
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { showCompare = true },
-                    modifier = Modifier.testTag("compareNowButton"),
-                    colors = ButtonDefaults.buttonColors(containerColor = Red500)
-                ) {
-                    Text("Compare Now")
                 }
             }
         }

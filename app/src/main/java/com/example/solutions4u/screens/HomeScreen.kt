@@ -138,8 +138,7 @@ fun HomeScreen(
             FooterSection(
                 onFaqClick = onFaqClick,
                 onContactClick = onContactClick,
-                onAboutClick = onAboutClick,
-                onDashboardClick = onDashboardClick
+                onAboutClick = onAboutClick
             )
         }
     }
@@ -414,8 +413,7 @@ fun NewsCard(newsItem: NewsItem, onReviewsClick: () -> Unit = {}) {
 fun FooterSection(
     onFaqClick: () -> Unit,
     onContactClick: () -> Unit,
-    onAboutClick: () -> Unit,
-    onDashboardClick: () -> Unit
+    onAboutClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
