@@ -75,6 +75,7 @@ fun Solutions4UApp() {
     NavHost(navController = navController, startDestination = NavRoutes.HOME) {
         composable(NavRoutes.HOME) {
             HomeScreen(
+                onReviewsClick = { navController.navigate(NavRoutes.REVIEWS) },
                 onCategoryClick = { route -> navController.navigate(route) },
                 onSignInClick = { navController.navigate(NavRoutes.SIGN_IN) },
                 onRegisterClick = { navController.navigate(NavRoutes.REGISTER) },
@@ -207,6 +208,10 @@ fun Solutions4UApp() {
                 onBackClick = { navController.popBackStack() },
                 onCompanyClick = { route -> navController.navigate(route) }
             )
+        }
+
+        composable(NavRoutes.REVIEWS) {
+            ReviewsScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }
