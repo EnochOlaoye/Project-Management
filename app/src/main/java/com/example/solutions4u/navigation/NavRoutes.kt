@@ -19,4 +19,5 @@ object NavRoutes {
     const val ABOUT = "about"
     const val SEARCH = "search"
     const val REVIEWS = "reviews"
+    const val REPORTS = "reports"
 }
